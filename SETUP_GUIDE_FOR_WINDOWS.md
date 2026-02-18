@@ -42,19 +42,46 @@ Hey! This guide will help you get VoxVeil running on your Windows laptop in just
 
 ## 🚀 Getting the VoxVeil Project
 
-### Step 1: Clone the Repository
+### Method 1: GitHub Desktop (Recommended)
 1. Open **GitHub Desktop**
 2. Click **"File"** → **"Clone Repository"**
 3. Click the **"URL"** tab
 4. Paste: `https://github.com/ilmaanoor/voxveil`
-5. Choose where to save it (e.g., `C:\Users\YourName\Documents\voxveil`)
-6. Click **"Clone"**
+5. Click **"Clone"**
 
-### Step 2: Open the Project
-1. Open **VS Code**
-2. Click **"File"** → **"Open Folder"**
-3. Select the `voxveil` folder you just cloned
-4. Click **"Select Folder"**
+### Method 2: Direct ZIP Download (No Extra Tools)
+1. Open this link in Chrome/Edge: [https://github.com/ilmaanoor/voxveil](https://github.com/ilmaanoor/voxveil)
+2. Click the green **"<> Code"** button
+3. Click **"Download ZIP"**
+4. Open your "Downloads" folder and **Right-click** on `voxveil-main.zip` → Choose **"Extract All..."**
+5. Move the extracted folder to your Desktop or Documents.
+
+---
+
+## ⚙️ CRITICAL: Enable Database Support
+Since her friend already has PHP 8.3 (`php -v`), she **MUST** do this one step or the website will show errors:
+
+1.  Open your **PHP folder** (usually `C:\php`)
+2.  Open the file named **`php.ini`** in Notepad.
+3.  Search for these 3 specific lines and **remove the semicolon `;`** at the start of each:
+    - `;extension=pdo_sqlite`  ➔  `extension=pdo_sqlite`
+    - `;extension=sqlite3`     ➔  `extension=sqlite3`
+    - `;extension_dir = "ext"` ➔  `extension_dir = "ext"`
+4.  **Save and Close.**
+
+---
+
+## ▶️ Running VoxVeil
+1. Open **Command Prompt** (search "cmd" in Windows)
+2. Type `cd` followed by the path where she saved the folder. E.g.:
+   ```bash
+   cd C:\Users\Ilmaa Noor\Downloads\voxveil-main
+   ```
+3. Start the server:
+   ```bash
+   php -S localhost:8005
+   ```
+4. Open the browser and go to: **[http://localhost:8005/index.php](http://localhost:8005/index.php)**
 
 ---
 
