@@ -83,9 +83,9 @@ Hey! This guide will help you get VoxVeil running on your Windows laptop in just
    ```
 4. Start the server:
    ```bash
-   php -S localhost:8000
+   php -S localhost:8005
    ```
-5. Open browser → Go to: **http://localhost:8000/index.php**
+5. Open browser → Go to: **http://localhost:8005/index.php**
 
 ---
 

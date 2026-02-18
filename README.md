@@ -1,126 +1,75 @@
-# VoxVeil - Interview Practice Platform
+# VoxVeil - AI-Powered Interview Practice Platform 🎤✨
 
-## 🚀 Quick Setup
+VoxVeil is a state-of-the-art web application designed to help individuals master their interview skills through AI-driven practice sessions. It features real-time voice recognition, advanced linguistic analytics, and a premium glassmorphism UI.
 
-### 1. Database Setup
-The platform is pre-configured with **SQLite**, so no heavy database installation is required. The database file is located at `database/voxveil.db`.
+---
 
-To reset the database (optional), you can run:
+## 🚀 Key Features & Upgrades
+
+### 🎨 Premium Design System
+- **Login Redesigned**: Centered, full-screen optimized login and registration with professional micro-animations.
+- **Glassmorphism UI**: High-end translucent cards, vibrant gradients, and a sleek dark mode theme.
+- **Responsive Web Design (RWD)**: Fully optimized for Mobile, Tablet, and Desktop displays.
+
+### 🛡️ Smart Navigation & Security
+- **Access Guards**: Practice sessions are strictly protected; users are prompted to complete their profiles before starting.
+- **Seamless Flow**: Instant redirections from Profile to Practice, and Practice to Progress boards.
+- **Anti-Cache Tech**: Implemented time-based versioning to ensure the latest design is always served.
+
+### 📊 Advanced Performance Analytics
+- **Relevance Detection**: AI-powered scoring that evaluates how well your answers address the specific interview question.
+- **Real-time Metrics**: Tracks Filler Words, Words Per Minute (WPM), Confidence Scores, and Question counts.
+- **History Modal**: Compact history cards with a detailed "View Full Details" modal for deep-dive transcript reviews.
+
+---
+
+## 🏗️ Technical Stack
+
+- **Frontend**: HTML5, Vanilla CSS, JavaScript (ES6+), jQuery
+- **Backend**: PHP 8.x
+- **Database**: SQLite (Zero-configuration, portable persistent storage)
+- **Visualizations**: Chart.js
+- **APIs**: Web Speech API (Real-time Speech-to-Text)
+
+---
+
+## 🛠️ Quick Installation (MacOS/Windows)
+
+### 1. Clone the Repository
 ```bash
-sqlite3 database/voxveil.db < database/schema.sql
+git clone https://github.com/ilmaanoor/voxveil.git
+cd voxveil
 ```
 
-### 2. Configure Database
-The database connection is managed in `php/config.php`. No additional configuration is needed by default.
+### 2. Configure PHP (Windows Users)
+Ensure `pdo_sqlite` and `sqlite3` extensions are enabled in your `php.ini` file. See `SETUP_GUIDE_FOR_WINDOWS.md` for a step-by-step checklist.
 
-### 3. Start PHP Server
+### 3. Start the Local Server
+From the project root directory:
 ```bash
-cd /Users/madhumita/Desktop/Projects/VoxVeil
-php -S localhost:8000
+php -S localhost:8005
 ```
 
-### 4. Open in Browser
-```
-http://localhost:8000/index.php
-```
+### 4. Access the Platform
+Open your browser (Chrome/Edge recommended) and go to:
+[http://localhost:8005/index.php](http://localhost:8005/index.php)
 
-## 📁 Project Structure
+---
 
-```
-voxveil/
-├── index.php           - Login/Registration page
-├── home.php            - Home page with hero section
-├── form.php            - User profile form (multi-step)
-├── practice.php        - Interview practice with voice/text
-├── progress.php        - Analytics and progress charts
-├── history.php         - Session history
-├── css/
-│   └── styles.css      - Complete design system
-├── js/
-│   ├── validation.js   - Form validation with DOM
-│   ├── events.js       - Event handlers (blur, focus, click, etc.)
-│   ├── practice.js     - Web Speech API & recording
-│   └── progress.js     - Chart.js visualizations
-├── php/
-│   ├── config.php      - Database connection
-│   ├── session.php     - Session management
-│   ├── auth.php        - Login/Register handlers (POST)
-│   ├── form-handler.php - Profile save (GET/POST)
-│   ├── practice-handler.php - Session save & questions
-│   └── db-operations.php - CRUD operations
-├── database/
-│   └── schema.sql      - MySQL schema with AUTO_INCREMENT
-└── assets/
-    └── images/         - Generated images
-```
+## 📁 Core File Architecture
+- `index.php`: Login & Brand Showcase
+- `form.php`: Multi-step User Profiling
+- `practice.php`: Evaluation Arena (Voice/Text Input)
+- `history.php`: Session Archive with Detailed Modal
+- `progress.php`: Data Visualizations & ROI Tracking
+- `php/db-operations.php`: Core Database Logic & Metrics Calculation
 
-## ✨ Features Implemented
+---
 
-### JavaScript & jQuery
-✅ Event handling: blur, focus, click, dblclick, keypress
-✅ Form validation using DOM constraints
-✅ jQuery selectors and event functions
-✅ JavaScript objects and arrays
-✅ Accessing CSS from JavaScript
-✅ 'this' keyword usage throughout
+## 💡 Best Practices for Evaluators
+- **Microphone**: Ensure you grant microphone permissions for the best voice experience.
+- **Profile First**: Use the "Get Started" page to define your status (UG/PG/Professional) to get personalized AI questions.
+- **Hard Refresh**: If you've made CSS changes, use `Cmd+Shift+R` (Mac) or `Ctrl+F5` (Windows) to instantly skip the cache.
 
-### PHP Backend
-✅ Form handling with GET and POST
-✅ PHP form validation
-✅ Session management with timeout
-✅ Cookie handling (Remember Me)
-✅ MySQL database connection
-
-### MySQL Database
-✅ CREATE TABLE with AUTO_INCREMENT
-✅ INSERT operations
-✅ SELECT operations
-✅ UPDATE operations
-✅ DELETE operations
-✅ DESCRIBE table functionality
-
-### Design
-✅ Responsive Web Design (RWD)
-✅ Glassmorphism effects
-✅ Dark theme with gradients
-✅ Smooth animations
-✅ Mobile-first approach
-
-## 🎯 How to Use
-
-1. **Register** - Create an account at index.php
-2. **Login** - Sign in with your credentials
-3. **Home** - View features and information
-4. **Form** - Fill your profile (3-step form)
-5. **Practice** - Start interview session with:
-   - Voice input (Web Speech API)
-   - Text input
-   - Real-time transcript
-   - Filler word detection
-6. **Progress** - View analytics and charts
-7. **History** - Review past sessions and retake
-
-## 🛠️ Technologies Used
-
-- **Frontend**: HTML5, CSS3, JavaScript, jQuery
-- **Backend**: PHP 7.4+
-- **Database**: MySQL
-- **Charts**: Chart.js
-- **Fonts**: Google Fonts (Inter, Poppins)
-
-## 💡 Tips
-
-- Use Chrome or Edge for voice recognition
-- Allow microphone access when prompted
-- Practice in a quiet environment
-- Track your progress over multiple sessions
-
-## 🎨 Design Features
-
-- Modern glassmorphism UI
-- Vibrant gradient colors
-- Dark mode theme
-- Smooth micro-animations
-- Fully responsive (mobile/tablet/desktop)
-
-Enjoy practicing! 🎤✨
+---
+© 2026 VoxVeil Development Team. All rights reserved.
