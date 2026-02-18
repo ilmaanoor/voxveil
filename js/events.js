@@ -34,7 +34,6 @@ $(document).ready(function () {
     $('.form-control').on('blur', function () {
         // 'this' keyword - refers to the input that lost focus
         $(this).parent().removeClass('focused');
-        resetFieldStyle(this);
 
         const inputId = $(this).attr('id');
         const inputValue = $(this).val();
@@ -44,38 +43,43 @@ $(document).ready(function () {
             const result = validateEmail(inputValue);
             if (!result.valid) {
                 showError(this, result.message);
+            } else {
+                hideError(this);
             }
         } else if (inputId.includes('password') && !inputId.includes('confirm')) {
             const result = validatePassword(inputValue);
             if (!result.valid) {
                 showError(this, result.message);
+            } else {
+                hideError(this);
             }
         } else if (inputId === 'confirm-password') {
             const password = $('#register-password').val();
             const result = validatePasswordMatch(password, inputValue);
             if (!result.valid) {
                 showError(this, result.message);
+            } else {
+                hideError(this);
             }
         }
     });
 
-    // KEYPRESS event - Real-time validation feedback
-    $('.form-control').on('keypress', function (e) {
+    // INPUT event - Real-time validation feedback (more robust than keypress)
+    $('.form-control').on('input', function () {
         // 'this' keyword - refers to the input being typed in
         const input = $(this);
+        hideError(this); // Clear error while typing
 
-        // Remove error styling while typing
-        input.removeClass('error');
-
-        // Show character count for password fields
+        // Show feedback for password fields
         if (input.attr('type') === 'password') {
-            const currentLength = input.val().length + 1; // +1 for the key being pressed
+            const currentLength = input.val().length;
 
-            // Access CSS from JavaScript
             if (currentLength >= 6) {
-                input.css('border-color', '#10b981');
+                highlightField(this, true);
+            } else if (currentLength > 0) {
+                input.css('border-color', 'var(--warning)');
             } else {
-                input.css('border-color', '#f59e0b');
+                resetFieldStyle(this);
             }
         }
     });
@@ -122,6 +126,9 @@ $(document).ready(function () {
         const emailResult = validateEmail(formData.email);
         const passwordResult = validatePassword(formData.password);
 
+        hideError(document.getElementById('login-email'));
+        hideError(document.getElementById('login-password'));
+
         if (!emailResult.valid) {
             showError(document.getElementById('login-email'), emailResult.message);
             return;
@@ -135,6 +142,7 @@ $(document).ready(function () {
         // Show loading state
         const submitBtn = $(this).find('button[type="submit"]');
         submitBtn.prop('disabled', true).html('Loading...');
+        hideAlert();
 
         // AJAX POST request
         $.ajax({
@@ -176,6 +184,10 @@ $(document).ready(function () {
         const passwordResult = validatePassword(formData.password);
         const matchResult = validatePasswordMatch(formData.password, formData.confirm_password);
 
+        hideError(document.getElementById('register-email'));
+        hideError(document.getElementById('register-password'));
+        hideError(document.getElementById('confirm-password'));
+
         let hasError = false;
 
         if (!emailResult.valid) {
@@ -207,10 +219,15 @@ $(document).ready(function () {
             dataType: 'json',
             success: function (response) {
                 if (response.success) {
-                    showAlert('Account created! Redirecting...', 'success');
+                    showAlert(response.message, 'success');
+                    submitBtn.prop('disabled', false).html('Create Account');
+                    $('#register-form')[0].reset();
+
+                    // Switch to login form after a delay
                     setTimeout(() => {
-                        window.location.href = 'home.php';
-                    }, 1500);
+                        $('.toggle-btn[data-form="login"]').click();
+                        $('#login-email').val(formData.email);
+                    }, 2000);
                 } else {
                     showAlert(response.message, 'error');
                     submitBtn.prop('disabled', false).html('Create Account');
@@ -224,8 +241,9 @@ $(document).ready(function () {
     });
 
     // Prevent form default submission on Enter key
-    $('.form-control').on('keypress', function (e) {
+    $('.form-control').on('keydown', function (e) {
         if (e.which === 13) { // Enter key
+            e.preventDefault();
             $(this).closest('form').submit();
         }
     });

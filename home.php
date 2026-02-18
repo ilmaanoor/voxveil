@@ -8,7 +8,7 @@ requireLogin();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VoxVeil - Home</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=<?php echo time(); ?>">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
@@ -153,13 +153,6 @@ requireLogin();
             margin-top: 2rem;
         }
 
-        .hero-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--spacing-xl);
-            align-items: center;
-        }
-
         .hero-subtitle {
             font-size: 1.5rem;
             color: var(--text-secondary);
@@ -184,55 +177,17 @@ requireLogin();
             display: block;
         }
 
-        .about-section {
-            padding: 4rem 0;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: var(--spacing-lg);
-        }
-
-        .feature-card {
-            text-align: center;
-            padding: var(--spacing-xl);
+        .about-section, .cta-section {
+            padding: var(--spacing-xl) 0;
         }
 
         .feature-icon-large {
-            font-size: 4rem;
+            font-size: 3.5rem;
             margin-bottom: var(--spacing-md);
-        }
-
-        .cta-section {
-            padding: 4rem 0;
         }
 
         .cta-card {
-            padding: var(--spacing-xl);
-        }
-
-        .cta-card h2 {
-            margin-bottom: var(--spacing-md);
-        }
-
-        .cta-card p {
-            font-size: 1.125rem;
-            margin-bottom: var(--spacing-lg);
-        }
-
-        @media (max-width: 768px) {
-            .hero-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .nav-links {
-                display: none;
-            }
+            padding: var(--spacing-xl) var(--spacing-md);
         }
     </style>
 

@@ -3,24 +3,19 @@
 ## 🚀 Quick Setup
 
 ### 1. Database Setup
-```sql
--- Open MySQL and run:
-mysql -u root -p
-source database/schema.sql
+The platform is pre-configured with **SQLite**, so no heavy database installation is required. The database file is located at `database/voxveil.db`.
+
+To reset the database (optional), you can run:
+```bash
+sqlite3 database/voxveil.db < database/schema.sql
 ```
 
 ### 2. Configure Database
-Edit `php/config.php` and update if needed:
-```php
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');  // Your MySQL password
-define('DB_NAME', 'voxveil_db');
-```
+The database connection is managed in `php/config.php`. No additional configuration is needed by default.
 
 ### 3. Start PHP Server
 ```bash
-cd /Users/madhumita/.gemini/antigravity/scratch/voxveil
+cd /Users/madhumita/Desktop/Projects/VoxVeil
 php -S localhost:8000
 ```
 

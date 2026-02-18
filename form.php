@@ -1,6 +1,9 @@
 <?php
 require_once 'php/session.php';
 requireLogin();
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -8,7 +11,7 @@ requireLogin();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VoxVeil - User Profile Form</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=<?php echo time(); ?>">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
@@ -30,6 +33,9 @@ requireLogin();
         <div class="container">
             <div class="form-page-container fade-in">
                 <h1 class="text-center text-gradient">Tell Us About Yourself</h1>
+                <p id="profile-last-updated" class="text-center text-muted mb-4" style="font-size: 0.8rem; display: none;">
+                    Profile Last Updated: <span id="update-date">Never</span>
+                </p>
                 <p class="text-center form-page-subtitle">
                     Help us personalize your interview practice experience
                 </p>
@@ -206,12 +212,6 @@ requireLogin();
             margin: 0 auto;
         }
 
-        .form-page-subtitle {
-            font-size: 1.125rem;
-            color: var(--text-secondary);
-            margin-bottom: var(--spacing-xl);
-        }
-
         .progress-indicator {
             display: flex;
             justify-content: space-between;
@@ -223,8 +223,8 @@ requireLogin();
             content: '';
             position: absolute;
             top: 30px;
-            left: 15%;
-            right: 15%;
+            left: 10%;
+            right: 10%;
             height: 2px;
             background: var(--bg-tertiary);
             z-index: 0;
@@ -241,38 +241,21 @@ requireLogin();
         }
 
         .step-number {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: var(--bg-tertiary);
-            color: var(--text-secondary);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             transition: all var(--transition-base);
         }
 
         .progress-step.active .step-number {
             background: var(--gradient-1);
-            color: white;
             box-shadow: var(--shadow-glow);
-        }
-
-        .progress-step.completed .step-number {
-            background: var(--success);
-            color: white;
-        }
-
-        .step-label {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--text-muted);
-        }
-
-        .progress-step.active .step-label {
-            color: var(--text-primary);
         }
 
         .form-step {
@@ -290,95 +273,48 @@ requireLogin();
             margin-top: var(--spacing-lg);
         }
 
-        .btn-group button {
-            flex: 1;
-        }
-
         .radio-group {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: var(--spacing-md);
         }
 
-        .radio-card {
-            position: relative;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .radio-card input[type="radio"] {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
-        }
-
         .radio-content {
-            padding: var(--spacing-lg);
+            padding: var(--spacing-md);
             background: var(--bg-secondary);
             border: 2px solid var(--glass-border);
             border-radius: var(--radius-md);
             transition: all var(--transition-base);
             text-align: center;
-            height: 100%;
         }
 
-        .radio-card:hover .radio-content {
-            border-color: var(--primary-light);
-            transform: translateY(-3px);
-        }
-
-        .radio-card input:checked ~ .radio-content {
-            border-color: var(--primary);
-            background: var(--gradient-1);
-        }
-
-        .radio-card input:checked ~ .radio-content * {
-            color: white;
-        }
-
-        .radio-icon {
-            font-size: 3rem;
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .radio-content h4 {
-            margin-bottom: 0.5rem;
-            font-size: 1.125rem;
-        }
-
-        .radio-content p {
-            font-size: 0.875rem;
-            margin: 0;
-            color: var(--text-muted);
-        }
-
-        @media (max-width: 768px) {
-            .progress-indicator {
-                flex-direction: column;
-                gap: var(--spacing-md);
-            }
-
+        @media (max-width: 600px) {
             .progress-indicator::before {
                 display: none;
             }
-
             .radio-group {
                 grid-template-columns: 1fr;
             }
-
-            .btn-group {
-                flex-direction: column;
-            }
-
-            .nav-links {
+            .progress-step .step-label {
                 display: none;
+            }
+            .progress-step.active .step-label {
+                display: block;
+                font-size: 0.75rem;
             }
         }
     </style>
 
-    <script src="js/validation.js"></script>
+    <script src="js/validation.js?v=<?php echo time(); ?>"></script>
     <script>
         $(document).ready(function() {
+            // Check for redirection alerts
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('alert') === 'complete_profile') {
+                alert('Please complete your profile in this "Get Started" section before starting a practice session.');
+            }
+
+            // Existing logic
             let currentStep = 1;
 
             // Load existing profile data
@@ -388,6 +324,12 @@ requireLogin();
                     $('#education-level').val(response.profile.education);
                     $('#field-of-study').val(response.profile.field);
                     $(`input[name="purpose"][value="${response.profile.purpose}"]`).prop('checked', true);
+                    
+                    if (response.profile.updated_at) {
+                        const date = new Date(response.profile.updated_at);
+                        $('#update-date').text(date.toLocaleDateString() + ' ' + date.toLocaleTimeString());
+                        $('#profile-last-updated').fadeIn();
+                    }
                 }
             });
 
@@ -469,6 +411,7 @@ requireLogin();
                 }
 
                 const formData = {
+                    action: 'save_profile',
                     name: $('#user-name').val(),
                     education: $('#education-level').val(),
                     field: $('#field-of-study').val(),

@@ -55,9 +55,8 @@ function handleRegistration($conn) {
         ]);
         
         $userId = $conn->lastInsertId();
-        setUserSession($userId, $email);
         
-        echo json_encode(['success' => true, 'message' => 'Registration successful']);
+        echo json_encode(['success' => true, 'message' => 'Registration successful! Please login with your credentials.']);
     } catch(PDOException $e) {
         echo json_encode(['success' => false, 'message' => 'Registration failed: ' . $e->getMessage()]);
     }

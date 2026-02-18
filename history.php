@@ -6,9 +6,9 @@ requireLogin();
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial=1.0">
     <title>VoxVeil - Session History</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=<?php echo time(); ?>">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
@@ -34,160 +34,157 @@ requireLogin();
         <div id="history-container"></div>
     </div>
 
-    <footer>
-        <div class="container">
-            <p class="text-center">&copy; 2026 VoxVeil. All rights reserved.</p>
+    <div id="session-modal" class="modal" style="display: none;">
+        <div class="modal-content glass-card fade-in">
+            <div class="flex-between mb-3">
+                <h2 id="modal-title" class="text-gradient">Session Details</h2>
+                <span class="close-modal" style="cursor: pointer; font-size: 1.5rem;">&times;</span>
+            </div>
+            <div id="modal-body">
+                <!-- Data will be injected here -->
+            </div>
         </div>
-    </footer>
+    </div>
 
+    <style>
     <style>
         .history-grid {
             display: grid;
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
         }
 
         .history-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: var(--radius-lg);
             padding: 2rem;
-            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
-
         .history-card:hover {
             transform: translateY(-5px);
-            box-shadow: var(--shadow-glow);
-        }
-
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.5rem;
-        }
-
-        .history-title h3 {
-            margin-bottom: 0.5rem;
-        }
-
-        .history-date {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        .history-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .badge-excellent {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            color: white;
-        }
-
-        .badge-good {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-        }
-
-        .badge-needs-work {
-            background: rgba(245, 158, 11, 0.2);
-            color: var(--warning);
-            border: 1px solid var(--warning);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .history-metrics {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
-            margin-bottom: 1.5rem;
+            margin: 1.5rem 0;
         }
 
         .metric-box {
-            background: var(--bg-secondary);
             padding: 1rem;
-            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 0.75rem;
             text-align: center;
         }
 
         .metric-box strong {
             display: block;
             font-size: 1.5rem;
-            color: var(--primary-light);
             margin-bottom: 0.25rem;
+            color: var(--primary-light);
         }
 
         .metric-box span {
             font-size: 0.85rem;
-            color: var(--text-muted);
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05rem;
         }
 
-        .history-transcript {
-            background: var(--bg-secondary);
+        /* Modal Responsiveness */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            backdrop-filter: blur(8px);
+        }
+        .modal-content {
+            max-width: 900px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 3rem;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .transcript-pre {
+            background: rgba(0,0,0,0.4);
             padding: 1.5rem;
-            border-radius: var(--radius-md);
-            margin-bottom: 1.5rem;
-            max-height: 200px;
+            border-radius: 0.75rem;
+            white-space: pre-wrap;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            line-height: 1.7;
+            border: 1px solid rgba(255,255,255,0.05);
+            margin-top: 1rem;
+            max-height: 400px;
             overflow-y: auto;
         }
 
-        .history-transcript h4 {
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-        }
-
-        .history-transcript pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-family: 'Inter', sans-serif;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        .history-actions {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-        }
-
-        .empty-state-icon {
-            font-size: 5rem;
-            margin-bottom: 1rem;
-        }
-
-        .empty-state h3 {
-            margin-bottom: 1rem;
-        }
-
+        /* Responsive Breakpoints */
         @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .history-header {
+            .history-grid {
+                grid-template-columns: 1fr;
+            }
+            .modal-content {
+                padding: 2rem 1.5rem;
+                max-height: 90vh;
+            }
+            .history-metrics.modal-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+            .flex-between.modal-footer {
                 flex-direction: column;
                 gap: 1rem;
             }
-            .history-actions {
-                flex-direction: column;
+            .flex-between.modal-footer .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .history-metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .metric-box strong {
+                font-size: 1.25rem;
             }
         }
     </style>
 
     <script src="js/validation.js"></script>
     <script>
+        let allSessions = [];
+
         $(document).ready(function() {
             loadHistory();
+            
+            // Close modal events
+            $('.close-modal').on('click', () => $('#session-modal').fadeOut());
+            $(window).on('click', (e) => {
+                if ($(e.target).is('#session-modal')) $('#session-modal').fadeOut();
+            });
         });
 
         function loadHistory() {
             $.get('php/practice-handler.php?action=get_stats', function(response) {
                 if (response.success && response.recent_sessions) {
-                    displayHistory(response.recent_sessions);
+                    allSessions = response.recent_sessions;
+                    displayHistory(allSessions);
                 } else {
                     showEmptyState();
                 }
@@ -215,7 +212,7 @@ requireLogin();
                         <div class="history-header">
                             <div class="history-title">
                                 <h3>Session #${sessions.length - index}</h3>
-                                <div class="history-date">${date.toLocaleDateString()} at ${date.toLocaleTimeString()}</div>
+                                <div class="history-date">${date.toLocaleDateString()}</div>
                             </div>
                             <div class="history-badge badge-${badge}">${badgeText}</div>
                         </div>
@@ -230,31 +227,17 @@ requireLogin();
                                 <span>WPM</span>
                             </div>
                             <div class="metric-box">
-                                <strong>${session.filler_count || 0}</strong>
-                                <span>Fillers</span>
+                                <strong>${session.questions_answered || 0}</strong>
+                                <span>Questions</span>
                             </div>
                             <div class="metric-box">
-                                <strong>${Math.round(session.duration / 60)}</strong>
-                                <span>Minutes</span>
+                                <strong>${Math.round(session.duration / 60)}m</strong>
+                                <span>Duration</span>
                             </div>
                         </div>
 
-                        ${session.transcript ? `
-                            <div class="history-transcript">
-                                <h4>Session Transcript</h4>
-                                <pre>${session.transcript.substring(0, 300)}${session.transcript.length > 300 ? '...' : ''}</pre>
-                            </div>
-                        ` : ''}
-
-                        ${session.feedback ? `
-                            <div style="background: rgba(99, 102, 241, 0.1); padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem;">
-                                <strong>💡 Feedback:</strong> ${session.feedback}
-                            </div>
-                        ` : ''}
-
                         <div class="history-actions">
-                            <a href="practice.php" class="btn btn-primary">🔄 Retake Interview</a>
-                            <button class="btn btn-secondary view-details-btn" data-session-id="${session.id}">
+                            <button class="btn btn-primary w-full view-details-btn" data-index="${index}">
                                 📄 View Full Details
                             </button>
                         </div>
@@ -267,9 +250,67 @@ requireLogin();
 
             // View details button handler
             $('.view-details-btn').on('click', function() {
-                const sessionId = $(this).data('session-id');
-                alert('Full session details feature coming soon!');
+                const index = $(this).data('index');
+                showSessionDetails(allSessions[index], sessions.length - index);
             });
+        }
+
+        function showSessionDetails(session, sessionNum) {
+            const date = new Date(session.session_date);
+            const score = session.confidence_score || 0;
+            const scoreClass = score >= 80 ? 'success' : score >= 60 ? 'warning' : 'error';
+
+            let modalHtml = `
+                <div class="mb-4">
+                    <p class="text-muted" style="font-size: 0.9rem;">${date.toLocaleDateString()} at ${date.toLocaleTimeString()}</p>
+                </div>
+
+                <div class="history-metrics modal-grid mb-4" style="grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+                    <div class="metric-box">
+                        <strong class="${scoreClass}">${score}%</strong>
+                        <span>Score</span>
+                    </div>
+                    <div class="metric-box">
+                        <strong>${session.words_per_minute || 0}</strong>
+                        <span>WPM</span>
+                    </div>
+                    <div class="metric-box">
+                        <strong>${session.filler_count || 0}</strong>
+                        <span>Fillers</span>
+                    </div>
+                    <div class="metric-box">
+                        <strong>${session.questions_answered || 0}</strong>
+                        <span>Questions</span>
+                    </div>
+                </div>
+
+                ${session.feedback ? `
+                    <div class="alert alert-info mb-4" style="background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.1); padding: 1.5rem;">
+                        <h4 class="mb-2" style="color: var(--primary-light); display: flex; align-items: center; gap: 0.5rem;">
+                            <span>💡</span> AI Feedback & Remarks
+                        </h4>
+                        <p style="line-height: 1.6;">${session.feedback}</p>
+                    </div>
+                ` : ''}
+
+                <div class="history-transcript">
+                    <h4 class="mb-2" style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span>📜</span> Full Interview Transcript
+                    </h4>
+                    <pre class="transcript-pre">${session.transcript || 'No transcript available for this session.'}</pre>
+                </div>
+                
+                <div class="mt-5 flex-between modal-footer">
+                    <a href="practice.php" class="btn btn-success" style="padding: 0.8rem 2rem;">🔄 Retake This Session</a>
+                    <button class="btn btn-secondary close-modal-btn" style="padding: 0.8rem 2rem;">Close Details</button>
+                </div>
+            `;
+
+            $('#modal-title').text(`Session #${sessionNum} Details`);
+            $('#modal-body').html(modalHtml);
+            $('#session-modal').fadeIn();
+
+            $('.close-modal-btn').on('click', () => $('#session-modal').fadeOut());
         }
 
         function showEmptyState() {

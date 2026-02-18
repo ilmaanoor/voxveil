@@ -21,7 +21,15 @@ Hey! This guide will help you get VoxVeil running on your Windows laptop in just
    - Under "System variables", find **"Path"** → Click **"Edit"**
    - Click **"New"** → Type: `C:\php`
    - Click **"OK"** on all windows
-5. **Test it works:**
+5. **Configure PHP (CRITICAL for Database):**
+   - Go to `C:\php`
+   - Find `php.ini-development` and rename it to `php.ini`
+   - Open `php.ini` in Notepad
+   - Search for `;extension=pdo_sqlite` and remove the `;` at the beginning
+   - Search for `;extension=sqlite3` and remove the `;` at the beginning
+   - Search for `;extension_dir = "ext"` and remove the `;`. Ensure it says `extension_dir = "ext"`
+   - Save and Close.
+6. **Test it works:**
    - Open Command Prompt (search "cmd")
    - Type: `php -v`
    - You should see the PHP version ✅

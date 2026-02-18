@@ -9,9 +9,7 @@ $(document).ready(function () {
 
     // Refresh button click event
     $('#refresh-stats-btn').on('click', function () {
-        $(this).addClass('rotating');
         loadProgressData();
-        setTimeout(() => $(this).removeClass('rotating'), 1000);
     });
 });
 
@@ -52,9 +50,14 @@ function displayRecentSessions(sessions) {
 
         html += `
             <div class="session-item fade-in" style="animation-delay: ${index * 0.1}s">
-                <div class="session-header">
-                    <h4>Session #${sessions.length - index}</h4>
-                    <span class="session-date">${date.toLocaleDateString()}</span>
+                <div class="session-card-header flex-between mb-2">
+                    <div>
+                        <span class="session-date">${new Date(session.session_date).toLocaleDateString()}</span>
+                        <span class="session-time text-muted" style="font-size: 0.8rem; margin-left: 0.5rem;">
+                            ${new Date(session.session_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                    </div>
+                    <span class="confidence-badge badge-${scoreClass}">${Math.round(session.confidence_score)}%</span>
                 </div>
                 <div class="session-stats">
                     <div class="stat-chip">
@@ -72,6 +75,10 @@ function displayRecentSessions(sessions) {
                     <div class="stat-chip">
                         <span class="stat-label">Duration:</span>
                         <span class="stat-value">${Math.round(session.duration / 60)}m</span>
+                    </div>
+                    <div class="stat-chip">
+                        <span class="stat-label">Questions:</span>
+                        <span class="stat-value">${session.questions_answered || 0}</span>
                     </div>
                 </div>
                 ${session.feedback ? `<p class="session-feedback">💡 ${session.feedback}</p>` : ''}

@@ -1,10 +1,15 @@
+<?php
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VoxVeil - Login & Registration</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=<?php echo time(); ?>">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
@@ -143,79 +148,95 @@
             min-height: 100vh;
             display: flex;
             align-items: center;
-            padding: var(--spacing-lg) 0;
+            justify-content: center;
+            padding: var(--spacing-xl) var(--spacing-md);
+            background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.15), transparent 40%),
+                        radial-gradient(circle at bottom left, rgba(236, 72, 153, 0.15), transparent 40%);
         }
 
         .auth-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--spacing-xl);
-            align-items: center;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
         }
 
         .auth-branding h1 {
-            font-size: 4rem;
+            font-size: clamp(3rem, 10vw, 5rem);
             margin-bottom: var(--spacing-md);
+            letter-spacing: -2px;
+            line-height: 1;
         }
 
-        .auth-branding > p {
+        .auth-branding p {
             font-size: 1.25rem;
+            color: var(--text-secondary);
             margin-bottom: var(--spacing-xl);
+            max-width: 450px;
         }
 
         .feature-list {
             display: flex;
             flex-direction: column;
-            gap: var(--spacing-lg);
+            gap: 2rem;
         }
 
         .feature-item {
             display: flex;
-            gap: var(--spacing-md);
-            align-items: flex-start;
+            align-items: center;
+            gap: 1.5rem;
+            animation: slideInLeft 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        .feature-item:nth-child(1) { animation-delay: 0.1s; }
+        .feature-item:nth-child(2) { animation-delay: 0.2s; }
+        .feature-item:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes slideInLeft {
+            from { transform: translateX(-30px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         .feature-icon {
-            font-size: 2.5rem;
+            font-size: 2rem;
             width: 60px;
             height: 60px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1.25rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--gradient-1);
-            border-radius: var(--radius-md);
-            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .feature-item h4 {
             margin-bottom: 0.25rem;
-        }
-
-        .feature-item p {
-            font-size: 0.95rem;
-            margin: 0;
+            font-size: 1.25rem;
         }
 
         .auth-forms {
-            padding: var(--spacing-xl);
+            padding: 3rem;
         }
 
         .form-toggle {
             display: flex;
-            background: var(--bg-secondary);
+            background: rgba(255, 255, 255, 0.03);
             border-radius: var(--radius-full);
-            padding: 0.375rem;
-            margin-bottom: var(--spacing-lg);
+            padding: 0.5rem;
+            margin-bottom: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .toggle-btn {
             flex: 1;
-            padding: 0.75rem 1.5rem;
+            padding: 1rem;
             background: transparent;
             border: none;
             border-radius: var(--radius-full);
+            color: var(--text-muted);
             font-weight: 600;
-            color: var(--text-secondary);
             cursor: pointer;
             transition: all var(--transition-base);
         }
@@ -223,50 +244,38 @@
         .toggle-btn.active {
             background: var(--gradient-1);
             color: white;
-        }
-
-        .auth-form h2 {
-            margin-bottom: 0.5rem;
-        }
-
-        .form-subtitle {
-            color: var(--text-muted);
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .w-full {
-            width: 100%;
+            box-shadow: var(--shadow-glow);
         }
 
         @media (max-width: 968px) {
-            .auth-container {
-                grid-template-columns: 1fr;
+            .auth-wrapper {
+                padding: var(--spacing-xl) 0;
             }
-
+            .auth-container {
+                grid-template-columns: 1fr !important;
+                gap: 3rem;
+                padding: 0 var(--spacing-md);
+            }
             .auth-branding {
                 text-align: center;
-            }
-
-            .feature-list {
-                max-width: 500px;
-                margin: 0 auto;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .auth-branding h1 {
-                font-size: 3rem;
-            }
-
-            .feature-item {
+                display: flex;
                 flex-direction: column;
                 align-items: center;
-                text-align: center;
+            }
+            .auth-branding p {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .feature-list {
+                display: none;
+            }
+            .auth-forms {
+                padding: 2rem;
             }
         }
     </style>
 
-    <script src="js/validation.js"></script>
-    <script src="js/events.js"></script>
+    <script src="js/validation.js?v=<?php echo time(); ?>"></script>
+    <script src="js/events.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

@@ -25,11 +25,11 @@ function validateEmail(email) {
     if (!email || email.trim() === '') {
         return { valid: false, message: 'Email is required' };
     }
-    
+
     if (!validationRules.email.pattern.test(email)) {
         return { valid: false, message: validationRules.email.message };
     }
-    
+
     return { valid: true, message: '' };
 }
 
@@ -37,11 +37,11 @@ function validatePassword(password) {
     if (!password || password.trim() === '') {
         return { valid: false, message: 'Password is required' };
     }
-    
+
     if (password.length < validationRules.password.minLength) {
         return { valid: false, message: validationRules.password.message };
     }
-    
+
     return { valid: true, message: '' };
 }
 
@@ -49,11 +49,11 @@ function validateName(name) {
     if (!name || name.trim() === '') {
         return { valid: false, message: 'Name is required' };
     }
-    
+
     if (name.length < validationRules.name.minLength) {
         return { valid: false, message: validationRules.name.message };
     }
-    
+
     return { valid: true, message: '' };
 }
 
@@ -69,8 +69,10 @@ function showError(inputElement, message) {
     const errorElement = document.getElementById(inputElement.id + '-error');
     if (errorElement) {
         errorElement.textContent = message;
+        errorElement.style.display = 'block'; // Ensure visibility
         errorElement.classList.add('show');
         inputElement.classList.add('error');
+        highlightField(inputElement, false);
     }
 }
 
@@ -79,6 +81,7 @@ function hideError(inputElement) {
     const errorElement = document.getElementById(inputElement.id + '-error');
     if (errorElement) {
         errorElement.textContent = '';
+        errorElement.style.display = 'none';
         errorElement.classList.remove('show');
         inputElement.classList.remove('error');
     }
@@ -88,17 +91,17 @@ function hideError(inputElement) {
 function showAlert(message, type = 'success') {
     const alertContainer = document.getElementById('alert-container');
     if (!alertContainer) return;
-    
+
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type}`;
     alertDiv.textContent = message;
-    
+
     // Accessing CSS from JavaScript - Change styles dynamically
     alertDiv.style.marginBottom = '1rem';
-    
+
     alertContainer.innerHTML = '';
     alertContainer.appendChild(alertDiv);
-    
+
     // Auto-hide after 5 seconds
     setTimeout(() => {
         alertDiv.style.opacity = '0';
@@ -118,7 +121,7 @@ function hideAlert() {
 // Validate entire form - returns array of errors
 function validateForm(formData) {
     const errors = [];
-    
+
     for (let key in formData) {
         if (key.includes('email')) {
             const result = validateEmail(formData[key]);
@@ -137,7 +140,7 @@ function validateForm(formData) {
             }
         }
     }
-    
+
     return errors;
 }
 
@@ -148,7 +151,7 @@ function addInputConstraints(formElement) {
         input.setAttribute('pattern', validationRules.email.pattern.source);
         input.setAttribute('required', 'required');
     });
-    
+
     const passwordInputs = formElement.querySelectorAll('input[type="password"]');
     passwordInputs.forEach(input => {
         input.setAttribute('minlength', validationRules.password.minLength);
@@ -159,10 +162,10 @@ function addInputConstraints(formElement) {
 // Access and modify CSS from JavaScript
 function highlightField(element, isValid) {
     if (isValid) {
-        element.style.borderColor = '#10b981'; // Success green
+        element.style.borderColor = 'var(--success)'; // Using CSS variables for consistency
         element.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.1)';
     } else {
-        element.style.borderColor = '#ef4444'; // Error red
+        element.style.borderColor = 'var(--error)';
         element.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
     }
 }

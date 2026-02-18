@@ -24,6 +24,7 @@ try {
             field TEXT NOT NULL,
             purpose TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
 
@@ -43,11 +44,21 @@ try {
             filler_count INTEGER DEFAULT 0,
             words_per_minute INTEGER DEFAULT 0,
             confidence_score INTEGER DEFAULT 0,
+            relevance_score INTEGER DEFAULT 0,
             feedback TEXT,
             improvement_tips TEXT,
             FOREIGN KEY (session_id) REFERENCES interview_sessions(id) ON DELETE CASCADE
         );
     ");
+
+    // Migration: Add columns if they don't exist
+    try {
+        $conn->exec("ALTER TABLE session_metrics ADD COLUMN relevance_score INTEGER DEFAULT 0");
+    } catch (Exception $e) { /* Column already exists */ }
+    
+    try {
+        $conn->exec("ALTER TABLE user_profiles ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP");
+    } catch (Exception $e) { /* Column already exists */ }
     
 } catch(PDOException $e) {
     die("Connection failed: " . $e->getMessage());

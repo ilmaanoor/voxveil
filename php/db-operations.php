@@ -38,15 +38,16 @@ class DatabaseOperations {
     }
     
     // CREATE - Insert session metrics
-    public function insertMetrics($sessionId, $fillerCount, $wpm, $confidenceScore, $feedback) {
-        $stmt = $this->conn->prepare("INSERT INTO session_metrics (session_id, filler_count, words_per_minute, confidence_score, feedback) VALUES (:session_id, :filler_count, :wpm, :confidence_score, :feedback)");
+    public function insertMetrics($sessionId, $fillerCount, $wpm, $confidenceScore, $feedback, $relevanceScore = 0) {
+        $stmt = $this->conn->prepare("INSERT INTO session_metrics (session_id, filler_count, words_per_minute, confidence_score, feedback, relevance_score) VALUES (:session_id, :filler_count, :wpm, :confidence_score, :feedback, :relevance_score)");
         
         return $stmt->execute([
             ':session_id' => $sessionId,
             ':filler_count' => $fillerCount,
             ':wpm' => $wpm,
             ':confidence_score' => $confidenceScore,
-            ':feedback' => $feedback
+            ':feedback' => $feedback,
+            ':relevance_score' => $relevanceScore
         ]);
     }
     
@@ -73,7 +74,7 @@ class DatabaseOperations {
     
     // UPDATE - Update user profile
     public function updateUserProfile($userId, $name, $education, $field, $purpose) {
-        $stmt = $this->conn->prepare("UPDATE user_profiles SET name = :name, education = :education, field = :field, purpose = :purpose WHERE user_id = :user_id");
+        $stmt = $this->conn->prepare("UPDATE user_profiles SET name = :name, education = :education, field = :field, purpose = :purpose, updated_at = CURRENT_TIMESTAMP WHERE user_id = :user_id");
         
         return $stmt->execute([
             ':user_id' => $userId,
@@ -107,6 +108,7 @@ class DatabaseOperations {
             COUNT(*) as total_sessions,
             AVG(m.confidence_score) as avg_confidence,
             AVG(m.words_per_minute) as avg_wpm,
+            AVG(m.relevance_score) as avg_relevance,
             AVG(s.duration) as avg_duration,
             SUM(s.duration) as total_practice_time
         FROM interview_sessions s

@@ -8,7 +8,7 @@ requireLogin();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VoxVeil - Your Progress</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=<?php echo time(); ?>">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -84,122 +84,54 @@ requireLogin();
     <style>
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1.5rem;
             margin-bottom: 3rem;
         }
 
         .stat-card {
             text-align: center;
-            padding: 2rem;
+            padding: 1.5rem;
         }
 
         .stat-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .stat-card h3 {
             font-size: 2.5rem;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
             margin-bottom: 0.5rem;
         }
 
-        .charts-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 2rem;
-            margin-bottom: 3rem;
+        .stat-card h3 {
+            font-size: 2rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.25rem;
         }
 
         .chart-container {
-            padding: 2rem;
-        }
-
-        .chart-container h3 {
-            margin-bottom: 1.5rem;
+            padding: var(--spacing-md);
         }
 
         .chart-container canvas {
-            max-height: 300px;
+            max-height: 250px;
         }
 
         .recent-sessions {
-            padding: 2rem;
-        }
-
-        .session-item {
-            background: var(--bg-secondary);
-            padding: 1.5rem;
-            border-radius: var(--radius-md);
-            margin-bottom: 1rem;
-        }
-
-        .session-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .session-date {
-            color: var(--text-muted);
-            font-size: 0.9rem;
+            padding: var(--spacing-md);
         }
 
         .session-stats {
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
             flex-wrap: wrap;
-            margin-bottom: 0.5rem;
         }
 
         .stat-chip {
-            background: var(--bg-tertiary);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-        }
-
-        .stat-label {
-            color: var(--text-muted);
-        }
-
-        .stat-value {
-            font-weight: 600;
-            margin-left: 0.5rem;
-        }
-
-        .stat-value.success { color: var(--success); }
-        .stat-value.warning { color: var(--warning); }
-        .stat-value.error { color: var(--error); }
-
-        .session-feedback {
-            font-style: italic;
-            color: var(--text-secondary);
-            margin-top: 1rem;
-        }
-
-        .rotating {
-            animation: rotate 1s linear;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .charts-section {
-                grid-template-columns: 1fr;
-            }
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
         }
     </style>
 
-    <script src="js/validation.js"></script>
-    <script src="js/progress.js"></script>
+    <script src="js/validation.js?v=<?php echo time(); ?>"></script>
+    <script src="js/progress.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
