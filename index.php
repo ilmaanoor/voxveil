@@ -46,7 +46,7 @@ header("Expires: 0");
                 </aside>
 
                 <!-- Right Side - Forms -->
-                <section class="auth-forms glass-card">
+                <section class="auth-forms clay-card">
                     <div class="form-toggle">
                         <button class="toggle-btn active" data-form="login">Login</button>
                         <button class="toggle-btn" data-form="register">Register</button>

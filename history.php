@@ -35,7 +35,7 @@ requireLogin();
     </div>
 
     <div id="session-modal" class="modal" style="display: none;">
-        <div class="modal-content glass-card fade-in">
+        <div class="modal-content clay-card fade-in">
             <div class="flex-between mb-3">
                 <h2 id="modal-title" class="text-gradient">Session Details</h2>
                 <span class="close-modal" style="cursor: pointer; font-size: 1.5rem;">&times;</span>
@@ -46,7 +46,6 @@ requireLogin();
         </div>
     </div>
 
-    <style>
     <style>
         .history-grid {
             display: grid;
@@ -315,7 +314,7 @@ requireLogin();
 
         function showEmptyState() {
             $('#history-container').html(`
-                <div class="empty-state glass-card">
+                <div class="empty-state clay-card">
                     <div class="empty-state-icon">📋</div>
                     <h3>No Sessions Yet</h3>
                     <p style="color: var(--text-secondary); margin-bottom: 2rem;">

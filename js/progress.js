@@ -7,10 +7,6 @@ let trendsChart;
 $(document).ready(function () {
     loadProgressData();
 
-    // Refresh button click event
-    $('#refresh-stats-btn').on('click', function () {
-        loadProgressData();
-    });
 });
 
 function loadProgressData() {
@@ -127,19 +123,19 @@ function createProgressCharts(sessions) {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        labels: { color: '#f1f5f9' }
+                        labels: { color: '#334155' }
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
                         max: 100,
-                        ticks: { color: '#cbd5e1' },
-                        grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                        ticks: { color: '#334155' },
+                        grid: { color: 'rgba(51, 65, 85, 0.1)' }
                     },
                     x: {
-                        ticks: { color: '#cbd5e1' },
-                        grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                        ticks: { color: '#334155' },
+                        grid: { color: 'rgba(51, 65, 85, 0.1)' }
                     }
                 }
             }
@@ -179,7 +175,7 @@ function createProgressCharts(sessions) {
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        labels: { color: '#f1f5f9' }
+                        labels: { color: '#334155' }
                     }
                 },
                 scales: {
@@ -193,8 +189,8 @@ function createProgressCharts(sessions) {
                             text: 'WPM',
                             color: '#14b8a6'
                         },
-                        ticks: { color: '#cbd5e1' },
-                        grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                        ticks: { color: '#334155' },
+                        grid: { color: 'rgba(51, 65, 85, 0.1)' }
                     },
                     y1: {
                         type: 'linear',
@@ -209,11 +205,11 @@ function createProgressCharts(sessions) {
                         grid: {
                             drawOnChartArea: false // only want the grid lines for one axis
                         },
-                        ticks: { color: '#cbd5e1' }
+                        ticks: { color: '#334155' }
                     },
                     x: {
-                        ticks: { color: '#cbd5e1' },
-                        grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                        ticks: { color: '#334155' },
+                        grid: { color: 'rgba(51, 65, 85, 0.1)' }
                     }
                 }
             }

@@ -27,29 +27,28 @@ requireLogin();
     </header>
 
     <div class="container" style="padding: 3rem 0;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div style="margin-bottom: 2rem;">
             <h1 class="text-gradient">Your Progress</h1>
-            <button id="refresh-stats-btn" class="btn btn-secondary">🔄 Refresh</button>
         </div>
 
         <!-- Stats Cards -->
         <div class="stats-grid">
-            <div class="stat-card glass-card">
+            <div class="stat-card clay-card">
                 <div class="stat-icon">📊</div>
                 <h3 id="total-sessions">0</h3>
                 <p>Total Sessions</p>
             </div>
-            <div class="stat-card glass-card">
+            <div class="stat-card clay-card">
                 <div class="stat-icon">💯</div>
                 <h3 id="avg-confidence">0%</h3>
                 <p>Avg Confidence</p>
             </div>
-            <div class="stat-card glass-card">
+            <div class="stat-card clay-card">
                 <div class="stat-icon">⚡</div>
                 <h3 id="avg-wpm">0</h3>
                 <p>Avg WPM</p>
             </div>
-            <div class="stat-card glass-card">
+            <div class="stat-card clay-card">
                 <div class="stat-icon">⏱️</div>
                 <h3 id="total-practice-time">0</h3>
                 <p>All-Time Practice (Min)</p>
@@ -58,18 +57,18 @@ requireLogin();
 
         <!-- Charts -->
         <div class="charts-section">
-            <div class="chart-container glass-card">
+            <div class="chart-container clay-card">
                 <h3>Confidence Progress Over Time</h3>
                 <canvas id="progress-chart"></canvas>
             </div>
-            <div class="chart-container glass-card">
+            <div class="chart-container clay-card">
                 <h3>Performance Metrics</h3>
                 <canvas id="trends-chart"></canvas>
             </div>
         </div>
 
         <!-- Recent Sessions -->
-        <div class="recent-sessions glass-card">
+        <div class="recent-sessions clay-card">
             <h3>Recent Sessions</h3>
             <div id="recent-sessions-list"></div>
         </div>

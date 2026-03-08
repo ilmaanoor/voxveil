@@ -41,10 +41,24 @@ requireLogin();
                     </p>
                     <a href="form.php" class="btn btn-primary">Start Practicing Now</a>
                 </article>
-                
+
                 <aside class="hero-image fade-in">
-                    <div class="image-wrapper glass-card">
-                        <img src="assets/images/hero_interview_practice.webp" alt="Interview Practice" />
+                    <div class="image-wrapper clay-card">
+                        <!-- Animated clay-style mic scene -->
+                        <div class="clay-scene">
+                            <div class="clay-mic">
+                                <div class="mic-head">🎤</div>
+                                <div class="mic-stand"></div>
+                                <div class="mic-base"></div>
+                            </div>
+                            <div class="clay-wave w1"></div>
+                            <div class="clay-wave w2"></div>
+                            <div class="clay-wave w3"></div>
+                            <div class="clay-orb o1"></div>
+                            <div class="clay-orb o2"></div>
+                            <div class="clay-orb o3"></div>
+                            <div class="clay-label">Speaking...</div>
+                        </div>
                     </div>
                 </aside>
             </div>
@@ -60,42 +74,26 @@ requireLogin();
                 speaking pace, and confidence. Our platform provides a safe, private environment to practice 
                 and improve.
             </p>
-            
             <div class="features-grid">
-                <article class="feature-card glass-card fade-in">
+                <article class="feature-card clay-card fade-in">
                     <div class="feature-icon-large">🎤</div>
                     <h3>Voice Recognition</h3>
-                    <p>
-                        Practice speaking naturally using our advanced speech recognition technology. 
-                        Get real-time transcription and analysis of your responses.
-                    </p>
+                    <p>Practice speaking naturally using our advanced speech recognition technology. Get real-time transcription and analysis of your responses.</p>
                 </article>
-                
-                <article class="feature-card glass-card fade-in">
+                <article class="feature-card clay-card fade-in">
                     <div class="feature-icon-large">📊</div>
                     <h3>Progress Tracking</h3>
-                    <p>
-                        Monitor your improvement with detailed analytics. Track metrics like confidence scores, 
-                        speaking pace, and filler word usage across multiple sessions.
-                    </p>
+                    <p>Monitor your improvement with detailed analytics. Track metrics like confidence scores, speaking pace, and filler word usage across sessions.</p>
                 </article>
-                
-                <article class="feature-card glass-card fade-in">
+                <article class="feature-card clay-card fade-in">
                     <div class="feature-icon-large">💡</div>
                     <h3>Personalized Feedback</h3>
-                    <p>
-                        Receive tailored suggestions based on your performance. Learn what you're doing well 
-                        and where you can improve to ace your next interview.
-                    </p>
+                    <p>Receive tailored suggestions based on your performance. Learn what you're doing well and where you can improve.</p>
                 </article>
-                
-                <article class="feature-card glass-card fade-in">
+                <article class="feature-card clay-card fade-in">
                     <div class="feature-icon-large">🔒</div>
-                    <h3>Private & Secure</h3>
-                    <p>
-                        Your practice sessions are completely private. All data is securely stored and 
-                        only accessible to you. Practice without hesitation.
-                    </p>
+                    <h3>Private &amp; Secure</h3>
+                    <p>Your practice sessions are completely private. All data is securely stored and only accessible to you.</p>
                 </article>
             </div>
         </div>
@@ -104,7 +102,7 @@ requireLogin();
     <!-- CTA Section -->
     <section class="cta-section">
         <div class="container">
-            <div class="cta-card glass-card text-center">
+            <div class="cta-card clay-card text-center">
                 <h2>Ready to Transform Your Interview Skills?</h2>
                 <p>Click below to fill out a quick form and start your practice journey</p>
                 <a href="form.php" class="btn btn-primary">Fill the Form</a>
@@ -120,7 +118,6 @@ requireLogin();
                     <h4>VoxVeil</h4>
                     <p>Master your interview skills with confidence</p>
                 </div>
-                
                 <div class="footer-section">
                     <h4>Quick Links</h4>
                     <ul style="list-style: none;">
@@ -129,7 +126,6 @@ requireLogin();
                         <li><a href="progress.php">Progress</a></li>
                     </ul>
                 </div>
-                
                 <div class="footer-section">
                     <h4>Connect With Us</h4>
                     <div class="social-links">
@@ -140,56 +136,13 @@ requireLogin();
                     </div>
                 </div>
             </div>
-            
             <div style="text-align: center; padding-top: 2rem; border-top: 1px solid var(--glass-border);">
                 <p>&copy; 2026 VoxVeil. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
-    <style>
-        .hero-section {
-            padding: 4rem 0;
-            margin-top: 2rem;
-        }
 
-        .hero-subtitle {
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            margin-bottom: var(--spacing-md);
-        }
-
-        .hero-description {
-            font-size: 1.125rem;
-            line-height: 1.8;
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .image-wrapper {
-            padding: 1rem;
-            overflow: hidden;
-        }
-
-        .image-wrapper img {
-            width: 100%;
-            height: auto;
-            border-radius: var(--radius-md);
-            display: block;
-        }
-
-        .about-section, .cta-section {
-            padding: var(--spacing-xl) 0;
-        }
-
-        .feature-icon-large {
-            font-size: 3.5rem;
-            margin-bottom: var(--spacing-md);
-        }
-
-        .cta-card {
-            padding: var(--spacing-xl) var(--spacing-md);
-        }
-    </style>
 
     <script>
         $(document).ready(function() {
@@ -200,7 +153,7 @@ requireLogin();
                     window.location.href = 'php/session.php?action=logout';
                 }
             });
-            
+
             // Add fade-in animation on scroll
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -210,7 +163,7 @@ requireLogin();
                     }
                 });
             });
-            
+
             document.querySelectorAll('.fade-in').forEach(el => {
                 el.style.opacity = '0';
                 el.style.transform = 'translateY(20px)';

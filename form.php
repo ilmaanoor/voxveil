@@ -56,7 +56,7 @@ header("Expires: 0");
                     </div>
                 </div>
 
-                <form id="profile-form" class="glass-card">
+                <form id="profile-form" class="clay-card">
                     <div id="alert-container"></div>
 
                     <!-- Step 1: Basic Information -->

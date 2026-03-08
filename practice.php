@@ -59,7 +59,7 @@ if (!$profile) {
             <div id="alert-container"></div>
 
             <!-- Top Level: Question & Main Actions (Added) -->
-            <div class="question-header-section glass-card mb-3">
+            <div class="question-header-section clay-card mb-3">
                 <div class="flex-between align-start">
                     <div id="question-display" class="flex-grow">
                         <div class="question-card fade-in">
@@ -75,7 +75,7 @@ if (!$profile) {
 
             <div class="practice-grid">
                 <!-- Row 1, Col 1: Voice Input -->
-                <div class="input-method-card glass-card">
+                <div class="input-method-card clay-card">
                     <div class="flex-between mb-2">
                         <h3>🎤 Voice Input</h3>
                     </div>
@@ -87,7 +87,7 @@ if (!$profile) {
                 </div>
 
                 <!-- Row 1, Col 2: Response Transcript (Now next to Voice) -->
-                <div class="transcript-panel glass-card">
+                <div class="transcript-panel clay-card">
                     <div class="flex-between mb-2">
                         <h3>Your Response Transcript</h3>
                         <div style="display: flex; gap: 0.5rem;">
@@ -105,7 +105,7 @@ if (!$profile) {
                 </div>
 
                 <!-- Row 2, Col 1: Text Input -->
-                <div class="input-method-card glass-card">
+                <div class="input-method-card clay-card">
                     <div class="flex-between mb-2">
                         <h3>⌨️ Type Your Answer</h3>
                     </div>
@@ -121,7 +121,7 @@ if (!$profile) {
                 </div>
 
                 <!-- Row 2, Col 2: Session Metrics -->
-                <div class="practice-display glass-card">
+                <div class="practice-display clay-card">
                     <div class="flex-between mb-2">
                         <h3>Session Metrics</h3>
                     </div>
