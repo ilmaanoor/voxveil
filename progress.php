@@ -26,8 +26,8 @@ requireLogin();
         </nav>
     </header>
 
-    <div class="container" style="padding: 3rem 0;">
-        <div style="margin-bottom: 2rem;">
+    <div class="container page-section">
+        <div class="progress-header">
             <h1 class="text-gradient">Your Progress</h1>
         </div>
 
@@ -80,55 +80,7 @@ requireLogin();
         </div>
     </footer>
 
-    <style>
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
 
-        .stat-card {
-            text-align: center;
-            padding: 1.5rem;
-        }
-
-        .stat-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-card h3 {
-            font-size: 2rem;
-            background: var(--gradient-1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0.25rem;
-        }
-
-        .chart-container {
-            padding: var(--spacing-md);
-        }
-
-        .chart-container canvas {
-            max-height: 250px;
-        }
-
-        .recent-sessions {
-            padding: var(--spacing-md);
-        }
-
-        .session-stats {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .stat-chip {
-            padding: 0.25rem 0.75rem;
-            font-size: 0.8rem;
-        }
-    </style>
 
     <script src="js/validation.js?v=<?php echo time(); ?>"></script>
     <script src="js/progress.js?v=<?php echo time(); ?>"></script>

@@ -69,7 +69,7 @@ requireLogin();
     <section class="about-section">
         <div class="container">
             <h2 class="text-center text-gradient">About VoxVeil</h2>
-            <p class="text-center" style="max-width: 800px; margin: 0 auto 3rem;">
+            <p class="text-center about-description">
                 VoxVeil is designed to help you overcome common interview challenges like filler words, 
                 speaking pace, and confidence. Our platform provides a safe, private environment to practice 
                 and improve.
@@ -120,7 +120,7 @@ requireLogin();
                 </div>
                 <div class="footer-section">
                     <h4>Quick Links</h4>
-                    <ul style="list-style: none;">
+                    <ul class="footer-links">
                         <li><a href="home.php">Home</a></li>
                         <li><a href="practice.php">Practice</a></li>
                         <li><a href="progress.php">Progress</a></li>
@@ -136,7 +136,7 @@ requireLogin();
                     </div>
                 </div>
             </div>
-            <div style="text-align: center; padding-top: 2rem; border-top: 1px solid var(--glass-border);">
+            <div class="footer-bottom">
                 <p>&copy; 2026 VoxVeil. All rights reserved.</p>
             </div>
         </div>

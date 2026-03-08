@@ -25,20 +25,20 @@ requireLogin();
         </nav>
     </header>
 
-    <div class="container" style="padding: 3rem 0;">
+        <div class="container py-3">
         <h1 class="text-center text-gradient">Session History</h1>
-        <p class="text-center" style="color: var(--text-secondary); margin-bottom: 3rem;">
+        <p class="text-center mb-3">
             Review your past interview sessions and retake them to track improvement
         </p>
 
         <div id="history-container"></div>
     </div>
 
-    <div id="session-modal" class="modal" style="display: none;">
+    <div id="session-modal" class="modal hidden">
         <div class="modal-content clay-card fade-in">
             <div class="flex-between mb-3">
                 <h2 id="modal-title" class="text-gradient">Session Details</h2>
-                <span class="close-modal" style="cursor: pointer; font-size: 1.5rem;">&times;</span>
+                <span class="close-modal">&times;</span>
             </div>
             <div id="modal-body">
                 <!-- Data will be injected here -->
@@ -46,124 +46,7 @@ requireLogin();
         </div>
     </div>
 
-    <style>
-        .history-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
 
-        .history-card {
-            padding: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .history-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .history-metrics {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-
-        .metric-box {
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 0.75rem;
-            text-align: center;
-        }
-
-        .metric-box strong {
-            display: block;
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
-            color: var(--primary-light);
-        }
-
-        .metric-box span {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.05rem;
-        }
-
-        /* Modal Responsiveness */
-        .modal {
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.85);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            backdrop-filter: blur(8px);
-        }
-        .modal-content {
-            max-width: 900px;
-            width: 100%;
-            max-height: 85vh;
-            overflow-y: auto;
-            padding: 3rem;
-            position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .transcript-pre {
-            background: rgba(0,0,0,0.4);
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            white-space: pre-wrap;
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            line-height: 1.7;
-            border: 1px solid rgba(255,255,255,0.05);
-            margin-top: 1rem;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-
-        /* Responsive Breakpoints */
-        @media (max-width: 768px) {
-            .history-grid {
-                grid-template-columns: 1fr;
-            }
-            .modal-content {
-                padding: 2rem 1.5rem;
-                max-height: 90vh;
-            }
-            .history-metrics.modal-grid {
-                grid-template-columns: repeat(2, 1fr) !important;
-            }
-            .flex-between.modal-footer {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            .flex-between.modal-footer .btn {
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .history-metrics {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .metric-box strong {
-                font-size: 1.25rem;
-            }
-        }
-    </style>
 
     <script src="js/validation.js"></script>
     <script>
@@ -261,10 +144,10 @@ requireLogin();
 
             let modalHtml = `
                 <div class="mb-4">
-                    <p class="text-muted" style="font-size: 0.9rem;">${date.toLocaleDateString()} at ${date.toLocaleTimeString()}</p>
+                    <p class="text-muted text-tiny">${date.toLocaleDateString()} at ${date.toLocaleTimeString()}</p>
                 </div>
 
-                <div class="history-metrics modal-grid mb-4" style="grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+                <div class="history-metrics history-metrics-grid mb-4">
                     <div class="metric-box">
                         <strong class="${scoreClass}">${score}%</strong>
                         <span>Score</span>
@@ -284,24 +167,24 @@ requireLogin();
                 </div>
 
                 ${session.feedback ? `
-                    <div class="alert alert-info mb-4" style="background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.1); padding: 1.5rem;">
-                        <h4 class="mb-2" style="color: var(--primary-light); display: flex; align-items: center; gap: 0.5rem;">
+                    <div class="alert alert-info mb-4 feedback-alert">
+                        <h4 class="mb-2 feedback-header flex-gap-1">
                             <span>💡</span> AI Feedback & Remarks
                         </h4>
-                        <p style="line-height: 1.6;">${session.feedback}</p>
+                        <p class="line-height-base">${session.feedback}</p>
                     </div>
                 ` : ''}
 
                 <div class="history-transcript">
-                    <h4 class="mb-2" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <h4 class="mb-2 flex-gap-1">
                         <span>📜</span> Full Interview Transcript
                     </h4>
                     <pre class="transcript-pre">${session.transcript || 'No transcript available for this session.'}</pre>
                 </div>
                 
                 <div class="mt-5 flex-between modal-footer">
-                    <a href="practice.php" class="btn btn-success" style="padding: 0.8rem 2rem;">🔄 Retake This Session</a>
-                    <button class="btn btn-secondary close-modal-btn" style="padding: 0.8rem 2rem;">Close Details</button>
+                    <a href="practice.php" class="btn btn-success p-btn">🔄 Retake This Session</a>
+                    <button class="btn btn-secondary close-modal-btn p-btn">Close Details</button>
                 </div>
             `;
 
@@ -317,7 +200,7 @@ requireLogin();
                 <div class="empty-state clay-card">
                     <div class="empty-state-icon">📋</div>
                     <h3>No Sessions Yet</h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                    <p class="text-secondary mb-2">
                         Start practicing to build your session history
                     </p>
                     <a href="practice.php" class="btn btn-primary">Start Your First Session</a>

@@ -33,7 +33,7 @@ header("Expires: 0");
         <div class="container">
             <div class="form-page-container fade-in">
                 <h1 class="text-center text-gradient">Tell Us About Yourself</h1>
-                <p id="profile-last-updated" class="text-center text-muted mb-4" style="font-size: 0.8rem; display: none;">
+                <p id="profile-last-updated" class="text-center text-muted mb-4 text-tiny hidden">
                     Profile Last Updated: <span id="update-date">Never</span>
                 </p>
                 <p class="text-center form-page-subtitle">
@@ -64,7 +64,7 @@ header("Expires: 0");
                         <h3>Basic Information</h3>
                         
                         <div class="form-group">
-                            <label for="user-name" class="form-label">Full Name <span style="color: var(--error)">*</span></label>
+                            <label for="user-name" class="form-label">Full Name <span class="required-star">*</span></label>
                             <input 
                                 type="text" 
                                 id="user-name" 
@@ -76,7 +76,7 @@ header("Expires: 0");
                         </div>
 
                         <div class="form-group">
-                            <label for="education-level" class="form-label">Current Status <span style="color: var(--error)">*</span></label>
+                            <label for="education-level" class="form-label">Current Status <span class="required-star">*</span></label>
                             <select id="education-level" name="education" class="form-control" required>
                                 <option value="">Select your status</option>
                                 <option value="UG">Undergraduate Student (UG)</option>
@@ -97,7 +97,7 @@ header("Expires: 0");
                         <h3>Education & Work Details</h3>
                         
                         <div class="form-group">
-                            <label for="field-of-study" class="form-label">Field of Study / Work Area <span style="color: var(--error)">*</span></label>
+                            <label for="field-of-study" class="form-label">Field of Study / Work Area <span class="required-star">*</span></label>
                             <select id="field-of-study" name="field" class="form-control" required>
                                 <option value="">Select your field</option>
                                 <!-- Academic Fields -->
@@ -139,7 +139,7 @@ header("Expires: 0");
                         <h3>Interview Goals</h3>
                         
                         <div class="form-group">
-                            <label class="form-label">What is the purpose of your interview practice? <span style="color: var(--error)">*</span></label>
+                            <label class="form-label">What is the purpose of your interview practice? <span class="required-star">*</span></label>
                             
                             <div class="radio-group">
                                 <label class="radio-card">
@@ -201,109 +201,7 @@ header("Expires: 0");
         </div>
     </footer>
 
-    <style>
-        .form-page-wrapper {
-            min-height: calc(100vh - 200px);
-            padding: 3rem 0;
-        }
 
-        .form-page-container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .progress-indicator {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: var(--spacing-xl);
-            position: relative;
-        }
-
-        .progress-indicator::before {
-            content: '';
-            position: absolute;
-            top: 30px;
-            left: 10%;
-            right: 10%;
-            height: 2px;
-            background: var(--bg-tertiary);
-            z-index: 0;
-        }
-
-        .progress-step {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: var(--spacing-xs);
-            position: relative;
-            z-index: 1;
-        }
-
-        .step-number {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--bg-tertiary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.25rem;
-            transition: all var(--transition-base);
-        }
-
-        .progress-step.active .step-number {
-            background: var(--gradient-1);
-            box-shadow: var(--shadow-glow);
-        }
-
-        .form-step {
-            display: none;
-        }
-
-        .form-step.active {
-            display: block;
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-lg);
-        }
-
-        .radio-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: var(--spacing-md);
-        }
-
-        .radio-content {
-            padding: var(--spacing-md);
-            background: var(--bg-secondary);
-            border: 2px solid var(--glass-border);
-            border-radius: var(--radius-md);
-            transition: all var(--transition-base);
-            text-align: center;
-        }
-
-        @media (max-width: 600px) {
-            .progress-indicator::before {
-                display: none;
-            }
-            .radio-group {
-                grid-template-columns: 1fr;
-            }
-            .progress-step .step-label {
-                display: none;
-            }
-            .progress-step.active .step-label {
-                display: block;
-                font-size: 0.75rem;
-            }
-        }
-    </style>
 
     <script src="js/validation.js?v=<?php echo time(); ?>"></script>
     <script>
