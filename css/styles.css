@@ -720,6 +720,16 @@ footer {
     }
 }
 
+/* Practice Page Utilities */
+.filler-highlight {
+    color: var(--error);
+    font-weight: 700;
+    text-decoration: underline wavy var(--error);
+    background: rgba(239, 68, 68, 0.1);
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
 @media (max-width: 576px) {
     :root {
         --spacing-xl: 2rem;

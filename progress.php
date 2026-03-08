@@ -52,7 +52,7 @@ requireLogin();
             <div class="stat-card glass-card">
                 <div class="stat-icon">⏱️</div>
                 <h3 id="total-practice-time">0</h3>
-                <p>Minutes Practiced</p>
+                <p>All-Time Practice (Min)</p>
             </div>
         </div>
 

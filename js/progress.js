@@ -44,17 +44,22 @@ function displayRecentSessions(sessions) {
 
     let html = '';
     sessions.forEach((session, index) => {
-        const date = new Date(session.session_date);
+        // MySQL stores datetime in UTC — append ' UTC' so JavaScript converts to local time correctly
+        const rawDate = session.session_date || '';
+        const dateObj = new Date(rawDate.includes('Z') || rawDate.includes('+') ? rawDate : rawDate + ' UTC');
         const score = session.confidence_score || 0;
         const scoreClass = score >= 80 ? 'success' : score >= 60 ? 'warning' : 'error';
+
+        const displayDate = dateObj.toLocaleDateString();
+        const displayTime = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
         html += `
             <div class="session-item fade-in" style="animation-delay: ${index * 0.1}s">
                 <div class="session-card-header flex-between mb-2">
                     <div>
-                        <span class="session-date">${new Date(session.session_date).toLocaleDateString()}</span>
+                        <span class="session-date">${displayDate}</span>
                         <span class="session-time text-muted" style="font-size: 0.8rem; margin-left: 0.5rem;">
-                            ${new Date(session.session_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            ${displayTime}
                         </span>
                     </div>
                     <span class="confidence-badge badge-${scoreClass}">${Math.round(session.confidence_score)}%</span>
@@ -93,10 +98,11 @@ function createProgressCharts(sessions) {
     if (!sessions || sessions.length === 0) return;
 
     // Prepare data
-    const labels = sessions.reverse().map((s, i) => `Session ${i + 1}`);
-    const confidenceData = sessions.map(s => s.confidence_score || 0);
-    const wpmData = sessions.map(s => s.words_per_minute || 0);
-    const fillerData = sessions.map(s => s.filler_count || 0);
+    const sessionsCopy = [...sessions].reverse();
+    const labels = sessionsCopy.map((s, i) => `Session ${i + 1}`);
+    const confidenceData = sessionsCopy.map(s => s.confidence_score || 0);
+    const wpmData = sessionsCopy.map(s => s.words_per_minute || 0);
+    const fillerData = sessionsCopy.map(s => s.filler_count || 0);
 
     // Progress Over Time Chart
     const progressCtx = document.getElementById('progress-chart');
@@ -155,14 +161,16 @@ function createProgressCharts(sessions) {
                         data: wpmData,
                         backgroundColor: 'rgba(20, 184, 166, 0.7)',
                         borderColor: '#14b8a6',
-                        borderWidth: 2
+                        borderWidth: 2,
+                        yAxisID: 'y'
                     },
                     {
                         label: 'Filler Words',
                         data: fillerData,
                         backgroundColor: 'rgba(239, 68, 68, 0.7)',
                         borderColor: '#ef4444',
-                        borderWidth: 2
+                        borderWidth: 2,
+                        yAxisID: 'y1'
                     }
                 ]
             },
@@ -176,9 +184,32 @@ function createProgressCharts(sessions) {
                 },
                 scales: {
                     y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
                         beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'WPM',
+                            color: '#14b8a6'
+                        },
                         ticks: { color: '#cbd5e1' },
                         grid: { color: 'rgba(148, 163, 184, 0.1)' }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Filler Count',
+                            color: '#ef4444'
+                        },
+                        grid: {
+                            drawOnChartArea: false // only want the grid lines for one axis
+                        },
+                        ticks: { color: '#cbd5e1' }
                     },
                     x: {
                         ticks: { color: '#cbd5e1' },

@@ -102,7 +102,6 @@ class DatabaseOperations {
         return $stmt->execute([':session_id' => $sessionId]);
     }
     
-    // Get progress statistics
     public function getProgressStats($userId) {
         $stmt = $this->conn->prepare("SELECT 
             COUNT(*) as total_sessions,
@@ -110,7 +109,7 @@ class DatabaseOperations {
             AVG(m.words_per_minute) as avg_wpm,
             AVG(m.relevance_score) as avg_relevance,
             AVG(s.duration) as avg_duration,
-            SUM(s.duration) as total_practice_time
+            COALESCE(SUM(s.duration), 0) as total_practice_time
         FROM interview_sessions s
         LEFT JOIN session_metrics m ON s.id = m.session_id
         WHERE s.user_id = :user_id");

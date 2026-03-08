@@ -5,13 +5,20 @@
 let recognition;
 let isRecording = false;
 let transcript = '';
-let fillerWords = [
-    'um', 'uh', 'like', 'you know', 'actually', 'basically', 'literally', 'so',
-    'I mean', 'right', 'okay', 'sort of', 'kind of', 'well'
-];
+// Filler words split into two groups:
+// Group 1 - Sound fillers: Chrome FILTERS these from final transcript, we must catch from interim
+let soundFillers = ['um', 'uh', 'umh', 'umm', 'ummm', 'uhh', 'uhhh', 'ah', 'err', 'hmm'];
+// Group 2 - Word fillers: Normal words Chrome KEEPS in transcript, we scan transcript for these
+let wordFillersList = ['like', 'you know', 'actually', 'basically', 'literally', 'so', 'i mean', 'right', 'okay', 'sort of', 'kind of', 'well'];
+// Combined list for highlighting
+let fillerWords = [...soundFillers, ...wordFillersList];
+
 let fillerCount = 0;
 let wordCount = 0;
-let startTime;
+let interimFillerTotal = 0;    // Accumulated sound-fillers from interim results
+let currentSegmentFillers = 0; // Max sound-fillers seen in current interim segment
+let startTime; // Reset per question
+let globalSessionStartTime; // Persists for the whole session
 let currentQuestion = '';
 let sessionQuestions = [];
 
@@ -69,14 +76,26 @@ function initializeSpeechRecognition() {
             const transcriptPiece = event.results[i][0].transcript;
 
             if (event.results[i].isFinal) {
+                // Finalized — lock in whatever sound-fillers we caught in interim for this segment
+                interimFillerTotal += currentSegmentFillers;
+                currentSegmentFillers = 0;
+
                 finalTranscript += transcriptPiece + ' ';
-                analyzeForFillers(transcriptPiece);
+                console.log('[VoxVeil] Final chunk:', transcriptPiece, '| interimFillerTotal so far:', interimFillerTotal);
             } else {
                 interimTranscript += transcriptPiece;
+
+                // Catch sound fillers (um/uh) from interim before Chrome deletes them
+                const seenSoundFillers = extractSoundFillers(interimTranscript);
+                if (seenSoundFillers > currentSegmentFillers) {
+                    currentSegmentFillers = seenSoundFillers;
+                    console.log('[VoxVeil] Caught interim sound fillers:', currentSegmentFillers, 'in:', interimTranscript);
+                }
             }
         }
 
         transcript += finalTranscript;
+        console.log('[VoxVeil] Full transcript now:', transcript);
         displayTranscript(transcript + interimTranscript);
         updateMetrics();
     };
@@ -115,8 +134,17 @@ function startRecording() {
             transcript = '';
             fillerCount = 0;
             wordCount = 0;
+            interimFillerTotal = 0;
+            currentSegmentFillers = 0;
             const sessionStartTime = Date.now();
-            const startDate = new Date(sessionStartTime);
+            
+            // Set individual question start time if not set
+            if (!startTime) startTime = sessionStartTime;
+            
+            // Set global start time if not set (first action of session)
+            if (!globalSessionStartTime) globalSessionStartTime = sessionStartTime;
+
+            const startDate = new Date(globalSessionStartTime);
             $('#session-start-time').text(startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
             recognition.start();
@@ -167,18 +195,99 @@ function displayTranscript(text) {
 
 // Highlight filler words in transcript
 function highlightFillers(text) {
+    if (!text) return '';
     let highlighted = text;
-    fillerWords.forEach(filler => {
-        const regex = new RegExp(`\\b${filler}\\b`, 'gi');
-        highlighted = highlighted.replace(regex, `<span class="filler-highlight">${filler}</span>`);
+    // Simple standard boundary for highlighting visual only
+    const sortedFillers = [...fillerWords].sort((a, b) => b.length - a.length);
+    const pattern = sortedFillers.map(f => f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+    const regex = new RegExp(`\\b(${pattern})\\b`, 'gi');
+    
+    return highlighted.replace(regex, `<span class="filler-highlight">$&</span>`);
+}
+
+// Count sound-type fillers (um/uh/hmm) from text — returns a NUMBER
+function extractSoundFillers(text) {
+    if (!text) return 0;
+    const normalized = ' ' + text.toLowerCase().replace(/[^a-z0-9']/gi, ' ').replace(/\s+/g, ' ') + ' ';
+    let count = 0;
+    let workText = normalized;
+    soundFillers.forEach(filler => {
+        const paddedFiller = ' ' + filler.toLowerCase() + ' ';
+        while (workText.includes(paddedFiller)) {
+            count++;
+            workText = workText.replace(paddedFiller, ' ');
+        }
     });
-    return highlighted;
+    return count;
+}
+
+// Count word-type fillers (like/so/actually) from text — these survive in the final transcript
+function countWordFillers(text) {
+    if (!text) return 0;
+    const normalized = ' ' + text.toLowerCase().replace(/[^a-z0-9']/gi, ' ').replace(/\s+/g, ' ') + ' ';
+    let count = 0;
+    let workText = normalized;
+    wordFillersList.forEach(filler => {
+        const paddedFiller = ' ' + filler.toLowerCase() + ' ';
+        while (workText.includes(paddedFiller)) {
+            count++;
+            workText = workText.replace(paddedFiller, ' ');
+        }
+    });
+    console.log('[VoxVeil] Word fillers in transcript:', count);
+    return count;
+}
+
+// Extract list of ALL filler words found in text (for legacy compatibility)
+function extractFillers(text) {
+    if (!text) return [];
+    const normalized = ' ' + text.toLowerCase().replace(/[^a-z0-9']/gi, ' ').replace(/\s+/g, ' ') + ' ';
+    let found = [];
+    let workText = normalized;
+    const sorted = [...fillerWords].sort((a, b) => b.length - a.length);
+    sorted.forEach(filler => {
+        const paddedFiller = ' ' + filler.toLowerCase() + ' ';
+        while (workText.includes(paddedFiller)) {
+            found.push(filler.toLowerCase());
+            workText = workText.replace(paddedFiller, ' ');
+        }
+    });
+    return found;
+}
+
+// Foolproof filler word counting logic avoiding regex boundary quirks
+function getFillerCount(text) {
+    if (!text) return 0;
+    // Normalize string: all punctuation to spaces, reduce multiple spaces to one
+    const normalized = ' ' + text.toLowerCase().replace(/[^a-z0-9']/gi, ' ').replace(/\s+/g, ' ') + ' ';
+    let count = 0;
+    
+    // Create a dynamic pattern that looks for padded words
+    const sorted = [...fillerWords].sort((a, b) => b.length - a.length);
+    
+    // We must use a loop and replace to avoid overlapping matches
+    let workText = normalized;
+    sorted.forEach(filler => {
+        const paddedFiller = ' ' + filler.toLowerCase() + ' ';
+        // Keep searching and replacing until no more matches of this specific filler
+        while (workText.includes(paddedFiller)) {
+            count++;
+            // Replace with a space so we don't break subsequent word boundaries
+            // e.g. " um like " -> " like "
+            workText = workText.replace(paddedFiller, ' ');
+        }
+    });
+
+    return count;
 }
 
 // Analyze text for filler words
 function analyzeForFillers(text) {
-    const words = text.toLowerCase().split(/\s+/);
-    wordCount += words.length;
+    if (!text) return;
+    const words = text.toLowerCase().split(/\s+/).filter(w => w.trim().length > 0);
+    
+    // We don't increment wordCount here anymore because it's calculated in updateMetrics
+    // to avoid double counting from final/interim overlaps.
 
     words.forEach(word => {
         if (fillerWords.includes(word)) {
@@ -189,6 +298,20 @@ function analyzeForFillers(text) {
 
 // Update metrics display (Strict Weighted Logic)
 function updateMetrics() {
+    // Calculate word count from the actual transcript text
+    const currentWords = transcript.trim() ? transcript.trim().split(/\s+/).length : 0;
+
+    // COMBINED filler count:
+    // 1. interimFillerTotal = sound fillers (um/uh) caught from interim speech before Chrome deletes them
+    // 2. countWordFillers(transcript) = word fillers (like/so/basically) that survive in final transcript text
+    // 3. currentSegmentFillers = sound fillers currently being spoken RIGHT NOW
+    const soundFillersTotal = interimFillerTotal + currentSegmentFillers;
+    const wordFillersTotal = countWordFillers(transcript);
+    fillerCount = soundFillersTotal + wordFillersTotal;
+    console.log('[VoxVeil] updateMetrics — soundFillers:', soundFillersTotal, '| wordFillers:', wordFillersTotal, '| total:', fillerCount);
+
+    wordCount = currentWords;
+
     // Use unified strict scoring
     const metrics = calculateStrictScore(wordCount, fillerCount, startTime, currentQuestion, transcript);
 
@@ -201,8 +324,11 @@ function updateMetrics() {
 
 // Unified Strict Scoring Logic
 function calculateStrictScore(words, fillers, start, question, currentTranscript) {
-    const duration = start ? (Date.now() - start) / 1000 : 0;
-    const wpm = duration > 1 ? Math.round((words / duration) * 60) : 0;
+    const now = Date.now();
+    const duration = start ? (now - start) / 1000 : 0;
+    
+    // MINIMUM DURATION: Avoid 0 WPM for very short answers
+    const wpm = (duration > 0.5) ? Math.round((words / duration) * 60) : 0;
 
     // 1. Filler Penalty (30%)
     const fillerRatio = words > 0 ? fillers / words : 0;
@@ -223,7 +349,10 @@ function calculateStrictScore(words, fillers, start, question, currentTranscript
     const relevanceScore = calculateRelevance(question, currentTranscript);
 
     // Weighted Average
-    let finalScore = (fillerScore * 0.3) + (paceScore * 0.2) + (lengthScore * 0.2) + (relevanceScore * 0.3);
+    let finalScore = (fillerScore * 0.25) + (paceScore * 0.2) + (lengthScore * 0.25) + (relevanceScore * 0.3);
+
+    // DEPTH BONUS: Reward longer, relevant answers
+    if (words > 50 && relevanceScore > 60) finalScore += 5;
 
     // NONSENSE PROTECTION: If it's just "hi" or "hello", tank the score hard
     if (words < 5 || relevanceScore < 15) {
@@ -243,17 +372,23 @@ function calculateStrictScore(words, fillers, start, question, currentTranscript
 // Calculate Relevance between Question and Answer
 function calculateRelevance(question, answer) {
     if (!answer || !question) return 0;
-    const stopWords = ['a', 'an', 'the', 'is', 'are', 'was', 'were', 'in', 'on', 'at', 'to', 'for', 'with', 'about', 'tell', 'me', 'what', 'how', 'why', 'your', 'my', 'you', 'i'];
+    const answerWords = answer.trim().split(/\s+/).length;
+    // Require at least 10 words in the answer to get any meaningful relevance score
+    if (answerWords < 5) return 5;
+
+    const stopWords = ['a', 'an', 'the', 'is', 'are', 'was', 'were', 'in', 'on', 'at', 'to', 'for', 'with', 'about', 'tell', 'me', 'what', 'how', 'why', 'your', 'my', 'you', 'i', 'do', 'did', 'can', 'have', 'has', 'just', 'that', 'this', 'and', 'or', 'but', 'so', 'if'];
 
     function getKeywords(text) {
         return text.toLowerCase()
-            .replace(/[^\w\s]/g, '')
+            .replace(/[^\w\s]/g, ' ')
             .split(/\s+/)
-            .filter(word => word.length > 2 && !stopWords.includes(word));
+            .filter(word => word.length > 3 && !stopWords.includes(word));
     }
 
     const qKeywords = getKeywords(question);
-    if (qKeywords.length === 0) return 100;
+
+    // If question has no meaningful keywords, return a neutral 40 — not 100!
+    if (qKeywords.length === 0) return 40;
 
     let matches = 0;
     const cleanAnswer = answer.toLowerCase();
@@ -261,18 +396,30 @@ function calculateRelevance(question, answer) {
         if (cleanAnswer.includes(kw)) matches++;
     });
 
-    const matchDensity = (matches / qKeywords.length) * 100;
-    const interviewMarkers = ['experience', 'skill', 'goal', 'project', 'because', 'learned', 'challeng', 'result'];
+    // Base score on keyword match density
+    const matchDensity = (matches / qKeywords.length) * 70; // Max 70 from keywords
+
+    // Interview depth markers add a small bonus (capped)
+    const interviewMarkers = ['experience', 'skill', 'goal', 'project', 'because', 'learned', 'challeng', 'result', 'achieved', 'solved'];
     let markersFound = 0;
     interviewMarkers.forEach(m => {
         if (cleanAnswer.includes(m)) markersFound++;
     });
+    const markerBonus = Math.min(markersFound * 5, 20); // Max 20 bonus, reduced from 15/marker
 
-    return Math.min(100, matchDensity + (markersFound * 15));
+    // Length bonus: longer answers get a base credit (up to 10)
+    const lengthBonus = Math.min(Math.floor(answerWords / 10), 10);
+
+    return Math.min(100, Math.round(matchDensity + markerBonus + lengthBonus));
 }
 
 // Handle text input (keypress event)
 function handleTextInput(e) {
+    // Start timers on first keypress
+    const now = Date.now();
+    if (!startTime) startTime = now;
+    if (!globalSessionStartTime) globalSessionStartTime = now;
+
     if (e.which === 13 && !e.shiftKey) { // Enter key without shift
         e.preventDefault();
         submitTextAnswer();
@@ -339,6 +486,8 @@ function handleRedo() {
     transcript = '';
     fillerCount = 0;
     wordCount = 0;
+    interimFillerTotal = 0;
+    currentSegmentFillers = 0;
 
     // Reset UI
     $('#transcript-display').html('<p class="text-muted">Your answer will appear here...</p>');
@@ -389,6 +538,8 @@ function loadNextQuestion() {
     transcript = '';
     fillerCount = 0;
     wordCount = 0;
+    interimFillerTotal = 0;
+    currentSegmentFillers = 0;
     startTime = null; // Important: reset timer for new WPM calculation
 
     // 2. Hide UI buttons on new question
@@ -426,6 +577,8 @@ function loadNextQuestion() {
 
 // End practice session
 function endSession() {
+    console.log("Ending session... Questions answered:", sessionQuestions.length);
+    
     if (sessionQuestions.length === 0) {
         showAlert('You need to answer at least one question', 'warning');
         return;
@@ -435,104 +588,168 @@ function endSession() {
         return;
     }
 
-    const duration = startTime ? Math.round((Date.now() - startTime) / 1000) : 0;
-
-    // Calculate overall metrics
-    let totalFillers = 0;
-    let totalWords = 0;
-    let fullTranscript = '';
-
-    sessionQuestions.forEach(q => {
-        totalFillers += q.fillerCount;
-        totalWords += q.wordCount;
-        fullTranscript += `Q: ${q.question}\nA: ${q.answer}\n\n`;
-    });
-
-    // Use unified strict score for overall session
-    const sessionMetrics = calculateStrictScore(totalWords, totalFillers, startTime, "Overall Interview", fullTranscript);
-
-    // Calculate average relevance
-    let totalRelevance = 0;
-    sessionQuestions.forEach(q => {
-        totalRelevance += calculateRelevance(q.question, q.answer);
-    });
-    const avgRelevance = sessionQuestions.length > 0 ? totalRelevance / sessionQuestions.length : 0;
-
-    const sessionData = {
-        action: 'save_session',
-        duration: duration,
-        transcript: fullTranscript,
-        questions_answered: sessionQuestions.length,
-        filler_count: totalFillers,
-        wpm: sessionMetrics.wpm,
-        confidence_score: Math.round(sessionMetrics.score),
-        relevance_score: Math.round(avgRelevance), // Added relevance_score
-        feedback: generateFeedback(totalFillers, sessionMetrics.wpm, sessionMetrics.score, avgRelevance) // Pass avgRelevance to feedback
-    };
-
     $('#end-session-btn').prop('disabled', true).html('Saving...');
 
-    $.post('php/practice-handler.php', sessionData, function (response) {
-        console.log("Session save response:", response);
-        if (response.success) {
-            showAlert('Session saved! redirecting to results...', 'success');
-            // Change body content to show clear ending message
-            $('.practice-page-wrapper .container').html(`
-                <div class="glass-card text-center py-5 fade-in">
-                    <h1 class="text-gradient mb-3">Session Ended!</h1>
-                    <p class="h4 mb-4">Great job on finishing your practice.</p>
-                    <div class="alert alert-success mb-4">
-                        Redirecting you to the progress page to see your detailed remarks...
-                    </div>
-                    <a href="progress.php" class="btn btn-primary">Go to Progress Now</a>
-                </div>
-            `);
-            window.location.href = 'progress.php';
-        } else {
-            showAlert('Failed to save session', 'error');
-            $('#end-session-btn').prop('disabled', false).html('End Session');
+    try {
+        const now = Date.now();
+        // Fallback: If globalSessionStartTime is not set (it should be), use now - 30s as a guess
+        // but better to ensure it's set on first action.
+        let duration = 0;
+        if (globalSessionStartTime) {
+            duration = Math.round((now - globalSessionStartTime) / 1000);
+        } else if (sessionQuestions.length > 0) {
+            // If we have questions but no start time, use a conservative estimate
+            duration = sessionQuestions.length * 45; // 45 seconds per question avg
         }
-    }, 'json');
+        
+        console.log("Session Duration Calculated:", duration, "secs");
+
+        let totalFillers = 0;
+        let totalWords = 0;
+        let fullTranscript = '';
+        let totalRelevance = 0;
+
+        sessionQuestions.forEach((q, idx) => {
+            totalFillers += parseInt(q.fillerCount) || 0;
+            totalWords += parseInt(q.wordCount) || 0;
+            fullTranscript += `Q${idx + 1}: ${q.question}\nA: ${q.answer}\n\n`;
+            totalRelevance += calculateRelevance(q.question, q.answer);
+        });
+
+        const avgRelevance = totalRelevance / sessionQuestions.length;
+        
+        // Final overall metrics calculation
+        const sessionMetrics = calculateStrictScore(totalWords, totalFillers, globalSessionStartTime, "Overall Interview", fullTranscript);
+        console.log("Final Metrics Calculated:", sessionMetrics);
+
+        if (!sessionMetrics) {
+            throw new Error("Failed to calculate session metrics");
+        }
+
+        const sessionData = {
+            action: 'save_session',
+            duration: duration,
+            transcript: fullTranscript,
+            questions_answered: sessionQuestions.length,
+            filler_count: totalFillers,
+            wpm: sessionMetrics.wpm || 0,
+            confidence_score: Math.round(sessionMetrics.score) || 0,
+            relevance_score: Math.round(avgRelevance) || 0,
+            feedback: generateFeedback(totalFillers, sessionMetrics.wpm, sessionMetrics.score, avgRelevance)
+        };
+
+        console.log("Sending sessionData to server:", sessionData);
+
+        $.post('php/practice-handler.php', sessionData, function (response) {
+            console.log("Server Response:", response);
+            if (response.success) {
+                showAlert('Session saved! redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'progress.php';
+                }, 1000);
+            } else {
+                showAlert('Failed to save session: ' + (response.message || 'Unknown error'), 'error');
+                $('#end-session-btn').prop('disabled', false).html('End Session');
+            }
+        }, 'json').fail(function(xhr, status, error) {
+            console.error("AJAX POST failed:", status, error);
+            showAlert('Network error: Could not save session', 'error');
+            $('#end-session-btn').prop('disabled', false).html('End Session');
+        });
+
+    } catch (err) {
+        console.error("Fatal error in endSession:", err);
+        showAlert('App Error: ' + err.message, 'error');
+        $('#end-session-btn').prop('disabled', false).html('End Session');
+    }
 }
 
-// Enhanced feedback generator with strict remarks
+// Dynamic, data-driven feedback generator — unique every session
 function generateFeedback(totalFillers, avgWpm, confidence, avgRelevance) {
-    let remarks = [];
+    const totalWords = sessionQuestions.reduce((acc, q) => acc + (parseInt(q.wordCount) || 0), 0);
+    const fillerRatio = totalWords > 0 ? (totalFillers / totalWords) : 0;
+    const fillerPct = Math.round(fillerRatio * 100);
+    const questionsCount = sessionQuestions.length;
+    const roundedWpm = Math.round(avgWpm);
+    const roundedConf = Math.round(confidence);
+    const roundedRel = Math.round(avgRelevance);
 
-    // 1. Filler Remarks
-    const fillerRatio = totalFillers / (sessionQuestions.reduce((acc, q) => acc + q.wordCount, 0) || 1);
-    if (fillerRatio > 0.05) {
-        remarks.push('⚠️ High filler usage detected. You are using verbal tics more than 5% of the time, which impacts your authority. Try to embrace silence between thoughts.');
-    } else if (fillerRatio > 0.02) {
-        remarks.push('Noticeable fillers used. Good effort, but aim for a cleaner delivery next time.');
+    let parts = [];
+
+    // 1. Opening based on overall score
+    if (confidence >= 80 && avgRelevance >= 70) {
+        const openers = [
+            `🌟 Strong session! ${roundedConf}% confidence across ${questionsCount} question(s).`,
+            `✨ Excellent work on ${questionsCount} question(s) with a ${roundedConf}% confidence score.`,
+            `💪 Well-prepared. ${questionsCount} answered with ${roundedConf}% confidence.`
+        ];
+        parts.push(openers[questionsCount % openers.length]);
+    } else if (confidence >= 60) {
+        const openers = [
+            `📈 Decent session — ${roundedConf}% confidence over ${questionsCount} question(s). Room to grow!`,
+            `👍 Solid effort on ${questionsCount} question(s). Confidence: ${roundedConf}%.`,
+            `🎯 ${questionsCount} answered. You hit ${roundedConf}% confidence — keep pushing!`
+        ];
+        parts.push(openers[questionsCount % openers.length]);
     } else {
-        remarks.push('✅ Excellent linguistic clarity! You sound very polished.');
+        const openers = [
+            `📉 ${questionsCount} question(s) answered. Confidence was ${roundedConf}% — let's improve.`,
+            `⚠️ Challenging session: ${roundedConf}% confidence on ${questionsCount} question(s), but every rep counts.`
+        ];
+        parts.push(openers[questionsCount % openers.length]);
     }
 
-    // 2. Pace Remarks
-    if (avgWpm < 110 && avgWpm > 0) {
-        remarks.push('🐢 Pace is too slow. Aim for 130-150 WPM to maintain interviewer engagement.');
-    } else if (avgWpm > 170) {
-        remarks.push('🚀 Speaking too fast. It makes you sound nervous. Try to slow down and emphasize key outcomes.');
+    // 2. Filler word feedback with exact numbers
+    if (totalFillers === 0) {
+        parts.push(`✅ Zero filler words detected — clean, crisp delivery.`);
+    } else if (fillerPct <= 2) {
+        parts.push(`✅ Only ${totalFillers} filler word(s) (${fillerPct}%) — very polished.`);
+    } else if (fillerPct <= 5) {
+        parts.push(`🗣️ ${totalFillers} filler word(s) (~${fillerPct}%) — slightly noticeable. Try deliberate pauses instead.`);
+    } else if (fillerPct <= 10) {
+        parts.push(`⚠️ ${totalFillers} fillers at ${fillerPct}% of your speech. Interviewers notice this. Practice pausing between thoughts.`);
     } else {
-        remarks.push('🎯 Stable and professional speaking pace.');
+        parts.push(`🚨 High filler usage: ${totalFillers} words (${fillerPct}%). Focus on shorter, cleaner sentences.`);
     }
 
-    // 3. Relevance Remarks (Strict Anti-Nonsense)
-    if (avgRelevance < 40) {
-        remarks.push('🔴 Low relevance score. Many of your answers were off-topic or lacked depth. Ensure you are addressing technical keywords directly.');
-    } else if (avgRelevance < 70) {
-        remarks.push('⚠️ Moderate relevance. Your answers are on-topic but could include more specific examples or technical terminology.');
+    // 3. Pace feedback with exact WPM
+    if (roundedWpm === 0) {
+        parts.push(`⏱️ Pace could not be measured — try speaking more in your next session.`);
+    } else if (roundedWpm < 100) {
+        parts.push(`🐢 Pace was ${roundedWpm} WPM — quite slow. Target 130–160 WPM to sound engaged.`);
+    } else if (roundedWpm < 120) {
+        parts.push(`📻 You spoke at ${roundedWpm} WPM — slightly slow. A bit more energy will improve your delivery.`);
+    } else if (roundedWpm <= 160) {
+        parts.push(`🎯 Your pace was ${roundedWpm} WPM — right in the ideal zone (130–160 WPM)!`);
+    } else if (roundedWpm <= 185) {
+        parts.push(`🚀 ${roundedWpm} WPM — a bit fast. Slow down slightly to let your ideas land better.`);
     } else {
-        remarks.push('🎯 Highly relevant answers! You addressed the core of the questions effectively.');
+        parts.push(`⚡ Very high pace at ${roundedWpm} WPM. Try a calmer, more measured delivery.`);
     }
 
-    // 4. Final Verdict
-    if (confidence > 80 && avgRelevance > 70) {
-        remarks.push('✨ Outstanding performance! You are highly prepared for this interview.');
-    } else if (confidence < 50 || avgRelevance < 40) {
-        remarks.push('⛔ Needs Attention. We recommend focusing on structural clarity and reducing distractions in your delivery.');
+    // 4. Relevance with exact score
+    if (roundedRel >= 80) {
+        parts.push(`📌 Excellent relevance (${roundedRel}%) — your answers targeted the core of each question.`);
+    } else if (roundedRel >= 60) {
+        parts.push(`📝 Good relevance at ${roundedRel}%. Adding specific examples could push this even higher.`);
+    } else if (roundedRel >= 40) {
+        parts.push(`🔍 Moderate relevance (${roundedRel}%). Include more keywords and experiences tied directly to the question.`);
+    } else {
+        parts.push(`🔴 Low relevance (${roundedRel}%). Your answers may have drifted off-topic. Stay focused on what's being asked.`);
     }
 
-    return remarks.join(' ');
+    // 5. Targeted closing tip
+    if (totalFillers > 5 && roundedWpm > 170) {
+        parts.push(`💡 Tip: Slowing down will fix both your pace and filler count at once.`);
+    } else if (roundedConf < 50) {
+        parts.push(`💡 Tip: Use the STAR method (Situation, Task, Action, Result) to structure your answers clearly.`);
+    } else if (totalFillers > 5) {
+        parts.push(`💡 Tip: Record yourself — hearing your own fillers is the fastest way to eliminate them.`);
+    } else if (roundedRel < 50) {
+        parts.push(`💡 Tip: Silently repeat the question keyword before answering to keep your response on track.`);
+    } else {
+        parts.push(`💡 Keep it up! Consistency is what builds real interview confidence.`);
+    }
+
+    return parts.join(' ');
 }
