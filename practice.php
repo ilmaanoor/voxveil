@@ -145,9 +145,12 @@ if (!$profile) {
                     </div>
                     
                     <div class="action-buttons mt-3">
-                        <button id="end-session-btn" class="btn btn-danger w-full">
-                            End Session
+                        <button id="end-session-btn" class="btn btn-danger w-full mb-2">
+                            End Session & Save
                         </button>
+                        <a href="progress.php" class="btn btn-primary w-full text-center" style="display: block; text-decoration: none;">
+                            Go to Next Page ➔
+                        </a>
                     </div>
                 </div>
             </div>

@@ -186,8 +186,11 @@ header("Expires: 0");
                                 Back
                             </button>
                             <button type="submit" class="btn btn-success">
-                                Save & Start Practicing
+                                Save & Go to Next Page ➔
                             </button>
+                            <a href="practice.php" class="btn btn-primary" style="margin-left: auto;">
+                                Skip to Next Page ➔
+                            </a>
                         </div>
                     </div>
                 </form>

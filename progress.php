@@ -68,9 +68,15 @@ requireLogin();
         </div>
 
         <!-- Recent Sessions -->
-        <div class="recent-sessions clay-card">
+        <div class="recent-sessions clay-card mb-4">
             <h3>Recent Sessions</h3>
             <div id="recent-sessions-list"></div>
+        </div>
+
+        <div class="text-center mt-4 mb-4">
+            <a href="history.php" class="btn btn-primary" style="padding: 15px 30px; font-size: 1.1rem; text-decoration: none; border-radius: 8px; display: inline-block;">
+                Go to Next Page (History) ➔
+            </a>
         </div>
     </div>
 
