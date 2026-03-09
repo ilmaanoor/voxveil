@@ -137,10 +137,10 @@ function startRecording() {
             interimFillerTotal = 0;
             currentSegmentFillers = 0;
             const sessionStartTime = Date.now();
-            
+
             // Set individual question start time if not set
             if (!startTime) startTime = sessionStartTime;
-            
+
             // Set global start time if not set (first action of session)
             if (!globalSessionStartTime) globalSessionStartTime = sessionStartTime;
 
@@ -201,7 +201,7 @@ function highlightFillers(text) {
     const sortedFillers = [...fillerWords].sort((a, b) => b.length - a.length);
     const pattern = sortedFillers.map(f => f.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
     const regex = new RegExp(`\\b(${pattern})\\b`, 'gi');
-    
+
     return highlighted.replace(regex, `<span class="filler-highlight">$&</span>`);
 }
 
@@ -261,10 +261,10 @@ function getFillerCount(text) {
     // Normalize string: all punctuation to spaces, reduce multiple spaces to one
     const normalized = ' ' + text.toLowerCase().replace(/[^a-z0-9']/gi, ' ').replace(/\s+/g, ' ') + ' ';
     let count = 0;
-    
+
     // Create a dynamic pattern that looks for padded words
     const sorted = [...fillerWords].sort((a, b) => b.length - a.length);
-    
+
     // We must use a loop and replace to avoid overlapping matches
     let workText = normalized;
     sorted.forEach(filler => {
@@ -285,7 +285,7 @@ function getFillerCount(text) {
 function analyzeForFillers(text) {
     if (!text) return;
     const words = text.toLowerCase().split(/\s+/).filter(w => w.trim().length > 0);
-    
+
     // We don't increment wordCount here anymore because it's calculated in updateMetrics
     // to avoid double counting from final/interim overlaps.
 
@@ -326,7 +326,7 @@ function updateMetrics() {
 function calculateStrictScore(words, fillers, start, question, currentTranscript) {
     const now = Date.now();
     const duration = start ? (now - start) / 1000 : 0;
-    
+
     // MINIMUM DURATION: Avoid 0 WPM for very short answers
     const wpm = (duration > 0.5) ? Math.round((words / duration) * 60) : 0;
 
@@ -560,7 +560,7 @@ function loadNextQuestion() {
     $('#answers-saved').text(answeredCount);
 
     // 5. Re-enable submit button (Crucial fix)
-    $('#submit-voice-btn').prop('disabled', false).html('Submit Voice Answer');
+    $('#submit-voice-btn').prop('disabled', false).html('Submit Transcript');
 
     const questions = questionsData;
 
@@ -578,7 +578,7 @@ function loadNextQuestion() {
 // End practice session
 function endSession() {
     console.log("Ending session... Questions answered:", sessionQuestions.length);
-    
+
     if (sessionQuestions.length === 0) {
         showAlert('You need to answer at least one question', 'warning');
         return;
@@ -601,7 +601,7 @@ function endSession() {
             // If we have questions but no start time, use a conservative estimate
             duration = sessionQuestions.length * 45; // 45 seconds per question avg
         }
-        
+
         console.log("Session Duration Calculated:", duration, "secs");
 
         let totalFillers = 0;
@@ -617,7 +617,7 @@ function endSession() {
         });
 
         const avgRelevance = totalRelevance / sessionQuestions.length;
-        
+
         // Final overall metrics calculation
         const sessionMetrics = calculateStrictScore(totalWords, totalFillers, globalSessionStartTime, "Overall Interview", fullTranscript);
         console.log("Final Metrics Calculated:", sessionMetrics);
@@ -651,7 +651,7 @@ function endSession() {
                 showAlert('Failed to save session: ' + (response.message || 'Unknown error'), 'error');
                 $('#end-session-btn').prop('disabled', false).html('End Session');
             }
-        }, 'json').fail(function(xhr, status, error) {
+        }, 'json').fail(function (xhr, status, error) {
             console.error("AJAX POST failed:", status, error);
             showAlert('Network error: Could not save session', 'error');
             $('#end-session-btn').prop('disabled', false).html('End Session');
@@ -676,79 +676,160 @@ function generateFeedback(totalFillers, avgWpm, confidence, avgRelevance) {
 
     let parts = [];
 
+    // Helper function to pick a random feedback string from an array
+    const pickRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
     // 1. Opening based on overall score
     if (confidence >= 80 && avgRelevance >= 70) {
-        const openers = [
-            `🌟 Strong session! ${roundedConf}% confidence across ${questionsCount} question(s).`,
-            `✨ Excellent work on ${questionsCount} question(s) with a ${roundedConf}% confidence score.`,
-            `💪 Well-prepared. ${questionsCount} answered with ${roundedConf}% confidence.`
-        ];
-        parts.push(openers[questionsCount % openers.length]);
+        parts.push(pickRandom([
+            `🌟 Outstanding session! You hit ${roundedConf}% confidence across ${questionsCount} question(s).`,
+            `✨ Brilliant work today. You tackled ${questionsCount} question(s) with an impressive ${roundedConf}% confidence.`,
+            `💪 Fantastic preparation showing through. ${questionsCount} handled with ${roundedConf}% confidence.`,
+            `🏆 Top-tier performance! A very strong ${roundedConf}% confidence score on ${questionsCount} question(s).`
+        ]));
     } else if (confidence >= 60) {
-        const openers = [
-            `📈 Decent session — ${roundedConf}% confidence over ${questionsCount} question(s). Room to grow!`,
-            `👍 Solid effort on ${questionsCount} question(s). Confidence: ${roundedConf}%.`,
-            `🎯 ${questionsCount} answered. You hit ${roundedConf}% confidence — keep pushing!`
-        ];
-        parts.push(openers[questionsCount % openers.length]);
+        parts.push(pickRandom([
+            `📈 Decent run! ${roundedConf}% confidence over ${questionsCount} question(s). Definitely room to grow.`,
+            `👍 A solid effort on those ${questionsCount} question(s). You achieved ${roundedConf}% confidence.`,
+            `🎯 You got through ${questionsCount} question(s) with ${roundedConf}% confidence — keep up the practice!`,
+            `💡 Good baseline session. ${roundedConf}% confidence over ${questionsCount} question(s). Let's aim higher next time.`
+        ]));
     } else {
-        const openers = [
-            `📉 ${questionsCount} question(s) answered. Confidence was ${roundedConf}% — let's improve.`,
-            `⚠️ Challenging session: ${roundedConf}% confidence on ${questionsCount} question(s), but every rep counts.`
-        ];
-        parts.push(openers[questionsCount % openers.length]);
+        parts.push(pickRandom([
+            `📉 You completed ${questionsCount} question(s) with ${roundedConf}% confidence. There's significant room for improvement here.`,
+            `⚠️ A challenging session: ${roundedConf}% confidence on ${questionsCount} question(s). Don't give up, every rep counts.`,
+            `🛠️ Rough session today (${roundedConf}% confidence). Review your answers and try these ${questionsCount} again.`,
+            `🌱 This was a learning opportunity. ${roundedConf}% confidence on ${questionsCount} question(s) — let's focus on the basics.`
+        ]));
     }
 
     // 2. Filler word feedback with exact numbers
     if (totalFillers === 0) {
-        parts.push(`✅ Zero filler words detected — clean, crisp delivery.`);
+        parts.push(pickRandom([
+            `✅ Zero filler words detected — clean, crisp, and professional delivery.`,
+            `✅ Absolutely flawless flow with 0 filler words. Excellent control!`,
+            `✅ Not a single "um" or "like" detected. Your delivery was razor-sharp.`
+        ]));
     } else if (fillerPct <= 2) {
-        parts.push(`✅ Only ${totalFillers} filler word(s) (${fillerPct}%) — very polished.`);
+        parts.push(pickRandom([
+            `✅ Only ${totalFillers} filler word(s) (${fillerPct}%) — very polished and barely noticeable.`,
+            `✅ Great job keeping fillers to a minimum (${totalFillers} total, ${fillerPct}%). Keep this up!`,
+            `✅ Your speech is remarkably clean with just ${totalFillers} filler(s) (${fillerPct}%).`
+        ]));
     } else if (fillerPct <= 5) {
-        parts.push(`🗣️ ${totalFillers} filler word(s) (~${fillerPct}%) — slightly noticeable. Try deliberate pauses instead.`);
+        parts.push(pickRandom([
+            `🗣️ ${totalFillers} filler word(s) (~${fillerPct}%) — slightly noticeable. Try deliberate pauses instead.`,
+            `🗣️ You used ${totalFillers} fillers (${fillerPct}%). It's okay, but try taking a breath instead of saying "um".`,
+            `🗣️ Minor hesitations detected (${totalFillers} fillers, ${fillerPct}%). Slow down slightly to think ahead.`
+        ]));
     } else if (fillerPct <= 10) {
-        parts.push(`⚠️ ${totalFillers} fillers at ${fillerPct}% of your speech. Interviewers notice this. Practice pausing between thoughts.`);
+        parts.push(pickRandom([
+            `⚠️ ${totalFillers} fillers at ${fillerPct}% of your speech. Interviewers will notice this. Practice silent pausing.`,
+            `⚠️ High filler rate: ${totalFillers} words (${fillerPct}%). This can distract from your actual answers.`,
+            `⚠️ You lean on fillers quite a bit (${fillerPct}% of words, ${totalFillers} total). Focus heavily on pausing next session.`
+        ]));
     } else {
-        parts.push(`🚨 High filler usage: ${totalFillers} words (${fillerPct}%). Focus on shorter, cleaner sentences.`);
+        parts.push(pickRandom([
+            `🚨 Severe filler usage: ${totalFillers} words (${fillerPct}%). Focus entirely on shorter, decisive sentences.`,
+            `🚨 Too many fillers (${totalFillers} total, ${fillerPct}%). This compromises your perceived confidence. Slow way down.`,
+            `🚨 Filler overload (${fillerPct}% of your speech was padding, ${totalFillers} words). Practice speaking in short bursts.`
+        ]));
     }
 
     // 3. Pace feedback with exact WPM
     if (roundedWpm === 0) {
-        parts.push(`⏱️ Pace could not be measured — try speaking more in your next session.`);
+        parts.push(`⏱️ Pace could not be measured accurately — try speaking clearly for a bit longer.`);
     } else if (roundedWpm < 100) {
-        parts.push(`🐢 Pace was ${roundedWpm} WPM — quite slow. Target 130–160 WPM to sound engaged.`);
+        parts.push(pickRandom([
+            `🐢 Sluggish pace at ${roundedWpm} WPM. Target 130–160 WPM to sound more naturally engaged.`,
+            `🐢 At ${roundedWpm} WPM, your delivery is very slow. Try to inject a bit more energy.`,
+            `🐢 ${roundedWpm} WPM is too hesitant. Practice speaking with a bit more fluidity.`
+        ]));
     } else if (roundedWpm < 120) {
-        parts.push(`📻 You spoke at ${roundedWpm} WPM — slightly slow. A bit more energy will improve your delivery.`);
+        parts.push(pickRandom([
+            `📻 You spoke at ${roundedWpm} WPM — slightly slow but acceptable. A bit more tempo will improve your flow.`,
+            `📻 At ${roundedWpm} WPM, you sound thoughtful, but perhaps a bit reserved. Don't be afraid to pick up the pace slightly.`,
+            `📻 ${roundedWpm} WPM is okay, but leaning towards slow. Target the 130+ range for dynamic delivery.`
+        ]));
     } else if (roundedWpm <= 160) {
-        parts.push(`🎯 Your pace was ${roundedWpm} WPM — right in the ideal zone (130–160 WPM)!`);
+        parts.push(pickRandom([
+            `🎯 Excellent pacing at ${roundedWpm} WPM — right in the sweet spot!`,
+            `🎯 You hit ${roundedWpm} WPM, which is the perfect conversational rhythm for interviews.`,
+            `🎯 Great tempo control. ${roundedWpm} WPM demonstrates calm and confidence.`
+        ]));
     } else if (roundedWpm <= 185) {
-        parts.push(`🚀 ${roundedWpm} WPM — a bit fast. Slow down slightly to let your ideas land better.`);
+        parts.push(pickRandom([
+            `🚀 Fast delivery at ${roundedWpm} WPM. Slow down slightly to let your heavy-hitting points sink in.`,
+            `🚀 ${roundedWpm} WPM is quite brisk. Remember to breathe and give the interviewer time to process.`,
+            `🚀 You're talking a bit fast (${roundedWpm} WPM). Nerves? Try to consciously slow your cadence.`
+        ]));
     } else {
-        parts.push(`⚡ Very high pace at ${roundedWpm} WPM. Try a calmer, more measured delivery.`);
+        parts.push(pickRandom([
+            `⚡ Extremely rapid pace at ${roundedWpm} WPM. You must slow down to ensure clarity.`,
+            `⚡ Rattling off at ${roundedWpm} WPM makes you sound nervous. Breathe and take your time.`,
+            `⚡ ${roundedWpm} WPM is too fast for an interview setting. Consciously pause at every period.`
+        ]));
     }
 
     // 4. Relevance with exact score
     if (roundedRel >= 80) {
-        parts.push(`📌 Excellent relevance (${roundedRel}%) — your answers targeted the core of each question.`);
+        parts.push(pickRandom([
+            `📌 Outstanding relevance (${roundedRel}%)! Your answers were perfectly aligned with the core questions.`,
+            `📌 You nailed the topic (${roundedRel}% relevance). You addressed exactly what the interviewer would be looking for.`,
+            `📌 Highly focused responses (${roundedRel}% relevance). Great job staying on track.`
+        ]));
     } else if (roundedRel >= 60) {
-        parts.push(`📝 Good relevance at ${roundedRel}%. Adding specific examples could push this even higher.`);
+        parts.push(pickRandom([
+            `📝 Good overall relevance at ${roundedRel}%. Adding specific metric-driven examples could push this to Excellent.`,
+            `📝 You answered the prompts well (${roundedRel}% relevance). Just try to tie your conclusions back to the original question more explicitly.`,
+            `📝 Solid focus (${roundedRel}% relevance). Make sure every sentence serves the core premise of your answer.`
+        ]));
     } else if (roundedRel >= 40) {
-        parts.push(`🔍 Moderate relevance (${roundedRel}%). Include more keywords and experiences tied directly to the question.`);
+        parts.push(pickRandom([
+            `🔍 Moderate relevance (${roundedRel}%). You drifted a bit. Ensure you include keywords tied directly to the prompt.`,
+            `🔍 You somewhat answered the questions (${roundedRel}% relevance). Try the STAR method to stay more focused.`,
+            `🔍 Fair relevance (${roundedRel}%). Often happens when rambling. Next time, state your thesis in the very first sentence.`
+        ]));
     } else {
-        parts.push(`🔴 Low relevance (${roundedRel}%). Your answers may have drifted off-topic. Stay focused on what's being asked.`);
+        parts.push(pickRandom([
+            `🔴 Poor relevance (${roundedRel}%). Your answers seemed off-topic. Listen carefully to the prompt and answer it directly.`,
+            `🔴 Low focus detected (${roundedRel}% relevance). It seems you didn't quite address what was being asked.`,
+            `🔴 You struggled to stay on topic (${roundedRel}% relevance). Practice silently repeating the question to yourself before speaking.`
+        ]));
     }
 
     // 5. Targeted closing tip
     if (totalFillers > 5 && roundedWpm > 170) {
-        parts.push(`💡 Tip: Slowing down will fix both your pace and filler count at once.`);
+        parts.push(pickRandom([
+            `💡 Master Tip: High pace and fillers often go together. Slowing down naturally eliminates the "ums" because your brain has time to catch up.`,
+            `💡 Focus Area: Take a deep breath before speaking. A controlled pace will instantly clean up those filler words.`
+        ]));
     } else if (roundedConf < 50) {
-        parts.push(`💡 Tip: Use the STAR method (Situation, Task, Action, Result) to structure your answers clearly.`);
-    } else if (totalFillers > 5) {
-        parts.push(`💡 Tip: Record yourself — hearing your own fillers is the fastest way to eliminate them.`);
+        parts.push(pickRandom([
+            `💡 Pro Tip: When you don't know the answer, structure is your best friend. Use Situation, Task, Action, Result (STAR).`,
+            `💡 Action Item: Don't let a bad start ruin an answer. Pause, reset, and deliver what you do know confidently.`
+        ]));
+    } else if (totalFillers >= 8) {
+        parts.push(pickRandom([
+            `💡 Homework: Watch your video/listen to your audio. Hearing your own fillers is painful, but it's the fastest cure!`,
+            `💡 Quick Fix: Replace every "um" with a silent 1-second pause. Silence sounds like thoughtfulness to an interviewer.`
+        ]));
     } else if (roundedRel < 50) {
-        parts.push(`💡 Tip: Silently repeat the question keyword before answering to keep your response on track.`);
+        parts.push(pickRandom([
+            `💡 Core Strategy: Begin every answer by directly repeating the core of the question so you lock in the topic immediately.`,
+            `💡 Tip: Rambling kills relevance. If you've made your point, just stop talking. Short and sweet beats deeply off-topic.`
+        ]));
+    } else if (roundedWpm < 110) {
+        parts.push(pickRandom([
+            `💡 Master Tip: A slow pace can imply a lack of confidence or knowledge. Practice speaking about your passions to find a more natural velocity.`,
+            `💡 Focus Area: Try answering the exact same questions again, but challenge yourself to do it 20 seconds faster.`
+        ]));
     } else {
-        parts.push(`💡 Keep it up! Consistency is what builds real interview confidence.`);
+        parts.push(pickRandom([
+            `💡 Keep it up! Consistency builds the muscle memory required for real interview confidence.`,
+            `💡 Great job today. To keep pushing, try practicing with the camera on to monitor your non-verbal communication as well.`,
+            `💡 You're on the right track. Make sure you're regularly reviewing older sessions to ensure you don't regress on your metrics!`
+        ]));
     }
 
     return parts.join(' ');

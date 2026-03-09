@@ -10,6 +10,101 @@ requireLogin();
     <title>VoxVeil - Session History</title>
     <link rel="stylesheet" href="css/styles.css?v=<?php echo time(); ?>">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- History Page Specific Styling for Spacing and Alignment -->
+    <style>
+        .container.py-3 {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding-top: 4rem;
+            padding-bottom: 4rem;
+        }
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 2.5rem; /* More spaced out grid */
+            margin-top: 3.5rem;
+            justify-content: center; /* Center the grid items */
+        }
+        .history-card {
+            padding: 2.5rem; /* Larger padding for cards */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            background: var(--glass-bg, rgba(255, 255, 255, 0.6));
+            border-radius: var(--radius-lg, 1.5rem);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .history-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.1);
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start; /* Align badge to top and title */
+            margin-bottom: 2rem; /* Make it spaced from metrics */
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(26, 27, 39, 0.05); /* Divider */
+        }
+        .history-title h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary, #1A1B27);
+        }
+        .history-date {
+            color: var(--text-secondary, #4A4B6A);
+            font-size: 0.95rem;
+        }
+        .history-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-left: 1rem;
+            white-space: nowrap;
+        }
+        .history-metrics {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important; /* 2x2 grid for metrics instead of flex */
+            gap: 1.5rem !important; /* Spaced out items */
+            margin-bottom: 2.5rem;
+        }
+        .metric-box {
+            background: rgba(255,255,255,0.4);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            width: auto !important; /* Override standard width */
+        }
+        .metric-box strong {
+            font-size: 1.75rem;
+            color: var(--primary-dark, #7C3AED);
+            margin-bottom: 0.25rem;
+            line-height: 1;
+        }
+        .metric-box span {
+            font-size: 0.85rem;
+            color: var(--text-muted, #6B7280);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        .history-actions {
+            margin-top: auto;
+        }
+        .view-details-btn {
+            padding: 1rem;
+            font-size: 1.1rem;
+            border-radius: 0.75rem;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -84,17 +179,28 @@ requireLogin();
             let html = '<div class="history-grid">';
             
             sessions.forEach((session, index) => {
-                const date = new Date(session.session_date);
+                let rawDate1 = session.session_date || '';
+                if (rawDate1 && !rawDate1.includes('T')) {
+                    rawDate1 = rawDate1.replace(' ', 'T');
+                }
+                if (rawDate1 && !rawDate1.includes('Z') && !rawDate1.includes('+')) {
+                    rawDate1 += 'Z';
+                }
+                const date = new Date(rawDate1);
                 const score = session.confidence_score || 0;
                 const badge = score >= 80 ? 'excellent' : score >= 60 ? 'good' : 'needs-work';
                 const badgeText = score >= 80 ? '🌟 Excellent' : score >= 60 ? '👍 Good' : '💪 Needs Work';
+                
+                let durationMin = Math.floor(session.duration / 60);
+                let durationSec = session.duration % 60;
+                let durationStr = durationMin > 0 ? `${durationMin}m ${durationSec}s` : `${durationSec}s`;
                 
                 html += `
                     <div class="history-card fade-in" style="animation-delay: ${index * 0.1}s">
                         <div class="history-header">
                             <div class="history-title">
                                 <h3>Session #${sessions.length - index}</h3>
-                                <div class="history-date">${date.toLocaleDateString()}</div>
+                                <div class="history-date">${date.toLocaleDateString()} at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                             </div>
                             <div class="history-badge badge-${badge}">${badgeText}</div>
                         </div>
@@ -113,7 +219,7 @@ requireLogin();
                                 <span>Questions</span>
                             </div>
                             <div class="metric-box">
-                                <strong>${Math.round(session.duration / 60)}m</strong>
+                                <strong>${durationStr}</strong>
                                 <span>Duration</span>
                             </div>
                         </div>
@@ -138,7 +244,14 @@ requireLogin();
         }
 
         function showSessionDetails(session, sessionNum) {
-            const date = new Date(session.session_date);
+            let rawDate2 = session.session_date || '';
+            if (rawDate2 && !rawDate2.includes('T')) {
+                rawDate2 = rawDate2.replace(' ', 'T');
+            }
+            if (rawDate2 && !rawDate2.includes('Z') && !rawDate2.includes('+')) {
+                rawDate2 += 'Z';
+            }
+            const date = new Date(rawDate2);
             const score = session.confidence_score || 0;
             const scoreClass = score >= 80 ? 'success' : score >= 60 ? 'warning' : 'error';
 

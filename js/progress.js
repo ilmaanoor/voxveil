@@ -41,18 +41,31 @@ function displayRecentSessions(sessions) {
     let html = '';
     sessions.forEach((session, index) => {
         // MySQL stores datetime in UTC — append ' UTC' so JavaScript converts to local time correctly
-        const rawDate = session.session_date || '';
-        const dateObj = new Date(rawDate.includes('Z') || rawDate.includes('+') ? rawDate : rawDate + ' UTC');
+        // Convert to ISO-8601 string for robust cross-browser parsing (e.g. Safari)
+        let rawDate = session.session_date || '';
+        if (rawDate && !rawDate.includes('T')) {
+            rawDate = rawDate.replace(' ', 'T');
+        }
+        if (rawDate && !rawDate.includes('Z') && !rawDate.includes('+')) {
+            rawDate += 'Z';
+        }
+        const dateObj = new Date(rawDate);
         const score = session.confidence_score || 0;
         const scoreClass = score >= 80 ? 'success' : score >= 60 ? 'warning' : 'error';
 
         const displayDate = dateObj.toLocaleDateString();
         const displayTime = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+        let durationMin = Math.floor(session.duration / 60);
+        let durationSec = session.duration % 60;
+        let durationStr = durationMin > 0 ? `${durationMin}m ${durationSec}s` : `${durationSec}s`;
+
         html += `
             <div class="session-item fade-in" style="animation-delay: ${index * 0.1}s">
                 <div class="session-card-header flex-between mb-2">
                     <div>
+                        <span class="session-date" style="font-weight: 600; font-size: 1.1rem; color: var(--primary-dark);">Session #${sessions.length - index}</span>
+                        <span style="margin: 0 0.5rem; color: var(--text-muted);">&bull;</span>
                         <span class="session-date">${displayDate}</span>
                         <span class="session-time text-muted" style="font-size: 0.8rem; margin-left: 0.5rem;">
                             ${displayTime}
@@ -75,7 +88,7 @@ function displayRecentSessions(sessions) {
                     </div>
                     <div class="stat-chip">
                         <span class="stat-label">Duration:</span>
-                        <span class="stat-value">${Math.round(session.duration / 60)}m</span>
+                        <span class="stat-value">${durationStr}</span>
                     </div>
                     <div class="stat-chip">
                         <span class="stat-label">Questions:</span>

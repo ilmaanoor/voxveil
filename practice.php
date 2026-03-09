@@ -100,7 +100,7 @@ if (!$profile) {
                         <p class="text-muted">Your answer will appear here...</p>
                     </div>
                     <button id="submit-voice-btn" class="btn btn-success w-full mt-2">
-                        Submit Voice Answer
+                        Submit Transcript
                     </button>
                 </div>
 

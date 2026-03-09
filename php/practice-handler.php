@@ -125,7 +125,7 @@ function getStats($db, $userId) {
     echo json_encode([
         'success' => true,
         'stats' => $stats,
-        'recent_sessions' => array_slice($sessions, 0, 10)
+        'recent_sessions' => $sessions
     ]);
 }
 ?>
